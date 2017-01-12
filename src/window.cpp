@@ -101,6 +101,6 @@ void window::key_callback(GLFWwindow* window, int key, int scancode, int action,
     return;
   }
 
-  for (auto observer : s_instance->m_observers)
+  for (auto* const observer : s_instance->m_observers)
     observer->window_key_event(key, action, mods);
 }

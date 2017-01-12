@@ -8,11 +8,11 @@
 
 /* -- Includes -- */
 
-#include <algorithm>
 #include <string>
 #include <vector>
 
 #include "api.hpp"
+#include "util.hpp"
 
 /* -- Types -- */
 
@@ -159,10 +159,7 @@ namespace lineage
      */
     void remove_observer(lineage::window_observer* observer)
     {
-      m_observers.erase(std::remove(m_observers.begin(),
-                                    m_observers.end(),
-                                    observer),
-                        m_observers.end());
+      lineage::remove_all(m_observers, observer);
     }
 
     /* -- Implementation -- */

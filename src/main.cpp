@@ -11,6 +11,7 @@
 
 #include "application.hpp"
 #include "debug.hpp"
+#include "input_manager.hpp"
 #include "opengl.hpp"
 #include "window.hpp"
 
@@ -25,6 +26,7 @@ namespace
 {
   window create_window();
   opengl create_opengl();
+  input_manager create_input_manager();
 }
 
 /* -- Procedures -- */
@@ -35,9 +37,11 @@ int main(int argc, char** argv)
   {
     lineage::window window = create_window();
     lineage::opengl opengl = create_opengl();
+    lineage::input_manager input_manager = create_input_manager();
 
     application app(std::move(window),
-                    std::move(opengl));
+                    std::move(opengl),
+                    std::move(input_manager));
     app.main();
     return 0;
   }
@@ -82,6 +86,14 @@ namespace
   opengl create_opengl()
   {
     return opengl();
+  }
+
+  /**
+   * Creates the input manager.
+   */
+  input_manager create_input_manager()
+  {
+    return input_manager();
   }
 
 }

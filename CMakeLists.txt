@@ -22,6 +22,7 @@ set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/application.cpp
   ${SOURCE_DIR}/debug.cpp
+  ${SOURCE_DIR}/input_manager.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/opengl.cpp
   ${SOURCE_DIR}/window.cpp)

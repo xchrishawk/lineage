@@ -4,6 +4,8 @@
  * @date	2017/01/11
  */
 
+#pragma once
+
 /* -- Includes -- */
 
 #include <iostream>

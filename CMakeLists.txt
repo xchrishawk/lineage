@@ -32,6 +32,7 @@ pkg_check_modules(GLFW REQUIRED glfw3)
 
 # Build main executable
 add_executable(${MAIN_TARGET}
+  ${SOURCE_DIR}/application.cpp
   ${SOURCE_DIR}/debug.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/window.cpp)

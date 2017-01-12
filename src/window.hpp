@@ -4,6 +4,8 @@
  * @date	2017/01/11
  */
 
+#pragma once
+
 /* -- Includes -- */
 
 #include <string>
@@ -61,37 +63,49 @@ namespace lineage
 
   public:
 
-    /** Returns the GLFW version string. */
+    /**
+     * Returns the GLFW version string.
+     */
     std::string api_version() const
     {
       return std::string(glfwGetVersionString());
     }
 
-    /** Returns the current GLFW elapsed time, in seconds. */
+    /**
+     * Returns the current GLFW elapsed time, in seconds.
+     */
     double time() const
     {
       return glfwGetTime();
     }
 
-    /** Polls the GLFW API for events. */
+    /**
+     * Polls the GLFW API for events.
+     */
     void poll_events() const
     {
       glfwPollEvents();
     }
 
-    /** Swaps the window's front and back buffers. */
+    /**
+     * Swaps the window's front and back buffers.
+     */
     void swap_buffers()
     {
       glfwSwapBuffers(m_handle);
     }
 
-    /** Returns the window's "should close" flag. */
+    /**
+     * Returns the window's "should close" flag.
+     */
     bool should_close() const
     {
       return static_cast<bool>(glfwWindowShouldClose(m_handle));
     }
 
-    /** Sets the window's "should close" flag. */
+    /**
+     * Sets the window's "should close" flag.
+     */
     void set_should_close(bool should_close)
     {
       glfwSetWindowShouldClose(m_handle, static_cast<int>(should_close));

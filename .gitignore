@@ -1,0 +1,5 @@
+# Directory locals
+.dir-locals.el
+
+# Build directory
+build/

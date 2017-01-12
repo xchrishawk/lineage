@@ -62,8 +62,12 @@ namespace
   window create_window()
   {
     window_args args;
+
     args.context_version_major = 3;
-    args.context_version_minor = 3;
+    args.context_version_minor = 2;
+    args.context_profile = GLFW_OPENGL_CORE_PROFILE;
+    args.context_forward_compatibility = true;
+
     args.width = 800;
     args.height = 600;
     args.title = "Lineage";

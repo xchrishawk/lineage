@@ -47,12 +47,21 @@ namespace lineage
    */
   struct window_args
   {
+
+    /* -- OpenGL Configuration -- */
+
     int context_version_major;		/**< OpenGL context major version. */
     int context_version_minor;		/**< OpenGL context minor version. */
+    int context_profile;		/**< OpenGL context profile to use. */
+    bool context_forward_compatibility;	/**< If `true`, OpenGL context should be forward compatible. */
+
+    /* -- Window Configuration -- */
+
     int width;				/**< Initial width of window. */
     int height;				/**< Initial height of window. */
     std::string title;			/**< Initial title of window. */
     int swap_interval;			/**< Swap interval to use. */
+
   };
 
   /**

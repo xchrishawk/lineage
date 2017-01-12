@@ -39,6 +39,9 @@ window::window(const window_args& args)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, args.context_version_major);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, args.context_version_minor);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, args.context_profile);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, args.context_forward_compatibility ? GLFW_TRUE : GLFW_FALSE);
+
     m_handle = glfwCreateWindow(args.width,
                                 args.height,
                                 args.title.c_str(),

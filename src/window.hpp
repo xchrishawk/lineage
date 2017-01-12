@@ -8,7 +8,10 @@
 
 /* -- Includes -- */
 
+#include <algorithm>
 #include <string>
+#include <vector>
+
 #include "api.hpp"
 
 /* -- Types -- */
@@ -17,16 +20,39 @@ namespace lineage
 {
 
   /**
+   * Abstract interface for classes observing events from a `lineage::window`.
+   */
+  class window_observer
+  {
+  public:
+
+    /**
+     * The window received a key press event.
+     *
+     * @param key
+     * The key that was pressed or release.
+     *
+     * @param action
+     * The action that was taken on the key.
+     *
+     * @param mods
+     * The modifiers (if any) that are held down.
+     */
+    virtual void window_key_event(int key, int action, int mods) = 0;
+
+  };
+
+  /**
    * Struct containing arguments required to build a `lineage::window` instance.
    */
   struct window_args
   {
-    int context_version_major;
-    int context_version_minor;
-    int width;
-    int height;
-    std::string title;
-    int swap_interval;
+    int context_version_major;		/**< OpenGL context major version. */
+    int context_version_minor;		/**< OpenGL context minor version. */
+    int width;				/**< Initial width of window. */
+    int height;				/**< Initial height of window. */
+    std::string title;			/**< Initial title of window. */
+    int swap_interval;			/**< Swap interval to use. */
   };
 
   /**
@@ -111,6 +137,25 @@ namespace lineage
       glfwSetWindowShouldClose(m_handle, static_cast<int>(should_close));
     }
 
+    /**
+     * Adds an observer to this window.
+     */
+    void add_observer(lineage::window_observer* observer)
+    {
+      m_observers.push_back(observer);
+    }
+
+    /**
+     * Removes an observer from this window.
+     */
+    void remove_observer(lineage::window_observer* observer)
+    {
+      m_observers.erase(std::remove(m_observers.begin(),
+                                    m_observers.end(),
+                                    observer),
+                        m_observers.end());
+    }
+
     /* -- Implementation -- */
 
   private:
@@ -120,6 +165,7 @@ namespace lineage
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     GLFWwindow* m_handle;
+    std::vector<window_observer*> m_observers;
 
   };
 

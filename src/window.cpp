@@ -24,7 +24,8 @@ window* window::s_instance = nullptr;
 /* -- Procedures -- */
 
 window::window(const window_args& args)
-  : m_handle(nullptr)
+  : m_handle(nullptr),
+    m_observers()
 {
   if (s_instance != nullptr)
     throw std::logic_error("Only one window is allowed at a time!");
@@ -60,9 +61,11 @@ window::window(const window_args& args)
 }
 
 window::window(window&& other) noexcept
-  : m_handle(nullptr)
+  : m_handle(nullptr),
+    m_observers()
 {
   std::swap(m_handle, other.m_handle);
+  std::swap(m_observers, other.m_observers);
   s_instance = this;
 }
 
@@ -89,5 +92,12 @@ void window::error_callback(int error, const char* description)
 
 void window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  lineage_log_status("Got key event!");
+  if (s_instance == nullptr)
+  {
+    lineage_assert_fail("Received key callback with no active window!");
+    return;
+  }
+
+  for (auto observer : s_instance->m_observers)
+    observer->window_key_event(key, action, mods);
 }

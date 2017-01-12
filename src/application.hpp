@@ -19,13 +19,22 @@ namespace lineage
   /**
    * Main class for the application.
    */
-  class application
+  class application : public window_observer
   {
 
     /* -- Lifecycle -- */
 
   public:
 
+    /**
+     * Creates an application instance.
+     *
+     * @param window
+     * The main application window.
+     *
+     * @param opengl
+     * The OpenGL interface object to use.
+     */
     application(lineage::window window,
                 lineage::opengl opengl);
 
@@ -44,6 +53,10 @@ namespace lineage
      * Runs the main application loop.
      */
     void main();
+
+    /* -- `lineage::window_observer` Implementation -- */
+
+    virtual void window_key_event(int key, int action, int mods) override;
 
     /* -- Implementation -- */
 

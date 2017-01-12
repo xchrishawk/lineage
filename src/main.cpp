@@ -7,11 +7,15 @@
 /* -- Includes -- */
 
 #include "debug.hpp"
+#include "window.hpp"
+
+/* -- Namespaces -- */
+
+using namespace lineage;
 
 /* -- Procedures -- */
 
 int main(int argc, char** argv)
 {
-  lineage_log_status("Hello there!");
   return 0;
 }

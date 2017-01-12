@@ -8,6 +8,9 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(lineage)
 
+# CMake packages
+find_package(PkgConfig)
+
 # Targets
 set(MAIN_TARGET ${CMAKE_PROJECT_NAME})
 
@@ -20,16 +23,30 @@ set(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
 
+# -- Libraries --
+
+pkg_check_modules(GLEW REQUIRED glew)
+pkg_check_modules(GLFW REQUIRED glfw3)
+
 # -- Main Executable --
 
 # Build main executable
 add_executable(${MAIN_TARGET}
   ${SOURCE_DIR}/debug.cpp
-  ${SOURCE_DIR}/main.cpp)
+  ${SOURCE_DIR}/main.cpp
+  ${SOURCE_DIR}/window.cpp)
 target_compile_definitions(${MAIN_TARGET}
   PRIVATE -DLINEAGE_DEBUG)
+target_compile_options(${MAIN_TARGET}
+  PRIVATE ${GLEW_CFLAGS_OTHER}
+  PRIVATE ${GLFW_CFLAGS_OTHER})
 target_include_directories(${MAIN_TARGET}
-  PRIVATE ${SOURCE_DIR})
+  PRIVATE ${SOURCE_DIR}
+  PRIVATE ${GLEW_INCLUDE_DIRS}
+  PRIVATE ${GLFW_INCLUDE_DIRS})
+target_link_libraries(${MAIN_TARGET}
+  ${GLEW_LIBRARIES}
+  ${GLFW_LIBRARIES})
 
 # Run main executable
 add_custom_target(run

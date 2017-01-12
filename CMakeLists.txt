@@ -18,37 +18,88 @@ set(MAIN_TARGET ${CMAKE_PROJECT_NAME})
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-# Toolchain configuration
-set(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -Wpedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
-
-# -- Libraries --
-
-pkg_check_modules(GLEW REQUIRED glew)
-pkg_check_modules(GLFW REQUIRED glfw3)
-
-# -- Main Executable --
-
-# Build main executable
-add_executable(${MAIN_TARGET}
+# Source files
+set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/application.cpp
   ${SOURCE_DIR}/debug.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/opengl.cpp
   ${SOURCE_DIR}/window.cpp)
-target_compile_definitions(${MAIN_TARGET}
-  PRIVATE -DLINEAGE_DEBUG)
-target_compile_options(${MAIN_TARGET}
-  PRIVATE ${GLEW_CFLAGS_OTHER}
-  PRIVATE ${GLFW_CFLAGS_OTHER})
-target_include_directories(${MAIN_TARGET}
-  PRIVATE ${SOURCE_DIR}
-  PRIVATE ${GLEW_INCLUDE_DIRS}
-  PRIVATE ${GLFW_INCLUDE_DIRS})
-target_link_libraries(${MAIN_TARGET}
-  ${GLEW_LIBRARIES}
-  ${GLFW_LIBRARIES})
+
+# Toolchain configuration
+set(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
+
+# -- Platform Configuration --
+
+if(UNIX AND NOT APPLE)
+
+  # Preprocessor macros
+  list(APPEND MAIN_TARGET_COMPILE_DEFINITIONS -DLINEAGE_LINUX)
+
+elseif(APPLE)
+
+  # Preprocessor macros
+  list(APPEND MAIN_TARGET_COMPILE_DEFINITIONS -DLINEAGE_MACOS)
+
+  # Must link against OpenGL.framework
+  find_package(OpenGL REQUIRED)
+  list(APPEND MAIN_TARGET_LINK_LIBRARIES ${OPENGL_LIBRARIES})
+
+else()
+
+  # Unknown platform?
+  message(FATAL_ERROR "Unsupported or unknown platform!")
+
+endif()
+
+# -- Build Type Configuration --
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+
+  # Preprocessor macros
+  list(APPEND MAIN_TARGET_COMPILE_DEFINITIONS -DLINEAGE_DEBUG)
+
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+
+  # Preprocessor macros
+  list(APPEND MAIN_TARGET_COMPILE_DEFINITIONS
+    -DLINEAGE_NOASSERT
+    -DLINEAGE_NOLOG
+    -DLINEAGE_RELEASE)
+
+else()
+
+  # Unknown build type?
+  message(FATAL_ERROR "Unknown build type!")
+
+endif()
+
+# -- Third Party Libraries --
+
+# GLEW
+pkg_check_modules(GLEW REQUIRED glew)
+list(APPEND MAIN_TARGET_COMPILE_OPTIONS ${GLEW_CFLAGS_OTHER})
+list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${GLEW_INCLUDE_DIRS})
+list(APPEND MAIN_TARGET_LINK_LIBRARIES ${GLEW_LIBRARIES})
+link_directories(${GLEW_LIBRARY_DIRS})
+
+# GLFW3
+pkg_check_modules(GLFW REQUIRED glfw3)
+list(APPEND MAIN_TARGET_COMPILE_OPTIONS ${GLFW_CFLAGS_OTHER})
+list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${GLFW_INCLUDE_DIRS})
+list(APPEND MAIN_TARGET_LINK_LIBRARIES ${GLFW_LIBRARIES})
+link_directories(${GLFW_LIBRARY_DIRS})
+
+# -- Main Executable --
+
+# Build main executable
+add_executable(${MAIN_TARGET} ${MAIN_TARGET_SOURCES})
+target_compile_definitions(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_COMPILE_DEFINITIONS})
+target_compile_options(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_COMPILE_OPTIONS})
+target_include_directories(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_INCLUDE_DIRECTORIES})
+target_link_libraries(${MAIN_TARGET} ${MAIN_TARGET_LINK_LIBRARIES})
 
 # Run main executable
 add_custom_target(run

@@ -24,7 +24,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
 
 # Build main executable
 add_executable(${MAIN_TARGET}
+  ${SOURCE_DIR}/debug.cpp
   ${SOURCE_DIR}/main.cpp)
+target_compile_definitions(${MAIN_TARGET}
+  PRIVATE -DLINEAGE_DEBUG)
 target_include_directories(${MAIN_TARGET}
   PRIVATE ${SOURCE_DIR})
 

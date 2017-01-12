@@ -7,9 +7,11 @@
 /* -- Includes -- */
 
 #include <string>
+#include <utility>
 
 #include "application.hpp"
 #include "debug.hpp"
+#include "opengl.hpp"
 #include "window.hpp"
 
 /* -- Namespaces -- */
@@ -22,6 +24,7 @@ using namespace lineage;
 namespace
 {
   window create_window();
+  opengl create_opengl();
 }
 
 /* -- Procedures -- */
@@ -30,7 +33,11 @@ int main(int argc, char** argv)
 {
   try
   {
-    application app(create_window());
+    lineage::window window = create_window();
+    lineage::opengl opengl = create_opengl();
+
+    application app(std::move(window),
+                    std::move(opengl));
     app.main();
     return 0;
   }
@@ -63,6 +70,14 @@ namespace
     args.swap_interval = 1;
 
     return window(args);
+  }
+
+  /**
+   * Creates the OpenGL interface.
+   */
+  opengl create_opengl()
+  {
+    return opengl();
   }
 
 }

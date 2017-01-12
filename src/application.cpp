@@ -6,6 +6,8 @@
 
 /* -- Includes -- */
 
+#include <utility>
+
 #include "application.hpp"
 #include "debug.hpp"
 #include "window.hpp"
@@ -16,8 +18,10 @@ using namespace lineage;
 
 /* -- Procedures -- */
 
-application::application(lineage::window window)
-  : m_window(std::move(window))
+application::application(lineage::window window,
+                         lineage::opengl opengl)
+  : m_window(std::move(window)),
+    m_opengl(std::move(opengl))
 {
   lineage_log_status("Application launched succesfully.");
 }

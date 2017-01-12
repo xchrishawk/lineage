@@ -35,6 +35,7 @@ add_executable(${MAIN_TARGET}
   ${SOURCE_DIR}/application.cpp
   ${SOURCE_DIR}/debug.cpp
   ${SOURCE_DIR}/main.cpp
+  ${SOURCE_DIR}/opengl.cpp
   ${SOURCE_DIR}/window.cpp)
 target_compile_definitions(${MAIN_TARGET}
   PRIVATE -DLINEAGE_DEBUG)

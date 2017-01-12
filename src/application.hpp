@@ -8,6 +8,7 @@
 
 /* -- Includes -- */
 
+#include "opengl.hpp"
 #include "window.hpp"
 
 /* -- Types -- */
@@ -25,7 +26,9 @@ namespace lineage
 
   public:
 
-    application(lineage::window window);
+    application(lineage::window window,
+                lineage::opengl opengl);
+
     ~application();
 
   private:
@@ -47,6 +50,7 @@ namespace lineage
   private:
 
     lineage::window m_window;
+    lineage::opengl m_opengl;
 
   };
 

@@ -11,8 +11,6 @@
 namespace lineage
 {
 
-  class state_manager;
-
   /**
    * Struct containing arguments required to render a frame.
    */

@@ -11,8 +11,6 @@
 namespace lineage
 {
 
-  class input_manager;
-
   /**
    * Struct containing arguments required to run an interation of the state loop.
    */

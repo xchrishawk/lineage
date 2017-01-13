@@ -38,6 +38,7 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/prototype_render_manager.cpp
   ${SOURCE_DIR}/prototype_state_manager.cpp
   ${SOURCE_DIR}/shader.cpp
+  ${SOURCE_DIR}/shader_program.cpp
   ${SOURCE_DIR}/shader_source.cpp
   ${SOURCE_DIR}/window.cpp)
 
@@ -64,6 +65,10 @@ elseif(APPLE)
   # Must link against OpenGL.framework
   find_package(OpenGL REQUIRED)
   list(APPEND MAIN_TARGET_LINK_LIBRARIES ${OPENGL_LIBRARIES})
+
+  # Must manually include /usr/local/include since compiler doesn't include it automatically
+  # for some baffling reason
+  list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES /usr/local/include)
 
 else()
 

@@ -8,18 +8,17 @@
 
 /* -- Includes -- */
 
-#include <memory>
-
 #include "input_manager.hpp"
-#include "opengl.hpp"
-#include "render_manager.hpp"
-#include "state_manager.hpp"
-#include "window.hpp"
 
 /* -- Types -- */
 
 namespace lineage
 {
+
+  class opengl;
+  class render_manager;
+  class state_manager;
+  class window;
 
   /**
    * Main class for the application.

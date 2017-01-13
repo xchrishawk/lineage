@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "util.hpp"
 #include "window.hpp"
 
 /* -- Types -- */
@@ -98,11 +97,7 @@ namespace lineage
     /**
      * Gets the state of the specified input type.
      */
-    lineage::input_state input_state(lineage::input_type type) const
-    {
-      const auto it = m_states.find(type);
-      return (it != m_states.end() ? it->second : lineage::input_state::invalid);
-    }
+    lineage::input_state input_state(lineage::input_type type) const;
 
     /**
      * Sets the state of the specified input type, notifying observers if the state changes.
@@ -112,18 +107,12 @@ namespace lineage
     /**
      * Adds an observer to the input manager.
      */
-    void add_observer(lineage::input_observer* observer) const
-    {
-      m_observers.push_back(observer);
-    }
+    void add_observer(lineage::input_observer& observer) const;
 
     /**
      * Removes an observer from the input manager.
      */
-    void remove_observer(lineage::input_observer* observer) const
-    {
-      lineage::remove_all(m_observers, observer);
-    }
+    void remove_observer(lineage::input_observer& observer) const;
 
     /* -- `lineage::window_observer` Implementation -- */
 

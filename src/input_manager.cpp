@@ -11,6 +11,7 @@
 #include "api.hpp"
 #include "debug.hpp"
 #include "input_manager.hpp"
+#include "util.hpp"
 
 /* -- Namespaces -- */
 
@@ -29,6 +30,12 @@ input_manager::~input_manager()
   m_window.remove_observer(this);
 }
 
+input_state input_manager::input_state(input_type type) const
+{
+  const auto it = m_states.find(type);
+  return (it != m_states.end() ? it->second : input_state::invalid);
+}
+
 void input_manager::set_input_state(lineage::input_type type, lineage::input_state state)
 {
   const auto current_state = m_states[type];
@@ -38,6 +45,16 @@ void input_manager::set_input_state(lineage::input_type type, lineage::input_sta
   m_states[type] = state;
   for (auto observer : m_observers)
     observer->input_event(type, state);
+}
+
+void input_manager::add_observer(input_observer& observer) const
+{
+  m_observers.push_back(&observer);
+}
+
+void input_manager::remove_observer(input_observer& observer) const
+{
+  remove_all(m_observers, &observer);
 }
 
 void input_manager::window_key_event(int key, int action, int mods)

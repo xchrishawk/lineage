@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 #include "api.hpp"
+#include "debug.hpp"
 
 /* -- Types -- */
 

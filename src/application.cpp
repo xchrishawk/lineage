@@ -10,6 +10,10 @@
 
 #include "application.hpp"
 #include "debug.hpp"
+#include "input_manager.hpp"
+#include "opengl.hpp"
+#include "render_manager.hpp"
+#include "state_manager.hpp"
 #include "window.hpp"
 
 /* -- Namespaces -- */
@@ -29,7 +33,7 @@ application::application(lineage::window& window,
     m_state_manager(state_manager),
     m_render_manager(render_manager)
 {
-  m_input_manager.add_observer(this);
+  m_input_manager.add_observer(*this);
   lineage_log_status("Application launched succesfully.");
 
 #if defined(LINEAGE_DEBUG)
@@ -39,7 +43,7 @@ application::application(lineage::window& window,
 
 application::~application()
 {
-  m_input_manager.remove_observer(this);
+  m_input_manager.remove_observer(*this);
   lineage_log_status("Application terminating...");
 }
 
@@ -110,15 +114,12 @@ void application::do_render(double abs_t, double delta_t)
 
 #if defined(LINEAGE_DEBUG)
 
-#include "shader.hpp"
-#include "shader_source.hpp"
+#include "shader_program.hpp"
 
 void application::prototype_function()
 {
-  auto src = shader_source_string(shader_source::prototype_vertex_shader);
-  shader vert(GL_VERTEX_SHADER);
-  vert.set_source(src);
-  vert.compile();
+  shader_program prog;
+  prog.link();
 }
 
 #endif

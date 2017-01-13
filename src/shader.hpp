@@ -19,8 +19,10 @@
 namespace lineage
 {
 
+  class shader_program;
+
   /**
-   * Exception class representing an error which occurs when compiling a shader.
+   * Exception class representing an error occurring when attempting to compile a shader.
    */
   class shader_compile_error : public lineage::opengl_error
   {
@@ -44,18 +46,27 @@ namespace lineage
   class shader
   {
 
+    /* -- Constants -- */
+
+  public:
+
+    /**
+     * Invalid shader handle.
+     */
+    static const GLuint invalid_handle = 0;
+
     /* -- Lifecycle -- */
 
   public:
 
     /**
-     * Creates and compiles an OpenGL shader.
+     * Constructs a new OpenGL shader instance.
      *
      * @param type
      * The type of shader to create.
      *
      * @exception lineage::opengl_error
-     * Thrown if the shader cannot be created or compiled for any reason.
+     * Thrown if a new shader cannot be created for any reason.
      */
     shader(GLenum type);
 
@@ -75,26 +86,12 @@ namespace lineage
     /**
      * The type of this shader.
      */
-    GLenum type() const
-    {
-      return m_type;
-    }
+    GLenum type() const;
 
     /**
      * A string for the type of this shader.
      */
-    const std::string& type_string() const
-    {
-      return type_string(m_type);
-    }
-
-    /**
-     * The OpenGL handle for this shader.
-     */
-    GLuint handle() const
-    {
-      return m_handle;
-    }
+    const std::string& type_string() const;
 
     /**
      * Sets the source code for this shader.
@@ -130,6 +127,8 @@ namespace lineage
     /* -- Implementation -- */
 
   private:
+
+    friend class lineage::shader_program;
 
     const GLenum m_type;
     const GLuint m_handle;

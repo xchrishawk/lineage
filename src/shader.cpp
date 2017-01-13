@@ -17,26 +17,29 @@
 
 using namespace lineage;
 
-/* -- Constants -- */
-
-namespace
-{
-  const GLuint INVALID_HANDLE = 0;
-}
-
 /* -- Procedures -- */
 
 shader::shader(GLenum type)
   : m_type(type),
     m_handle(glCreateShader(type))
 {
-  if (m_handle == INVALID_HANDLE)
+  if (m_handle == invalid_handle)
     opengl_error::throw_last_error();
 }
 
 shader::~shader()
 {
   glDeleteShader(m_handle);
+}
+
+GLenum shader::type() const
+{
+  return m_type;
+}
+
+const std::string& shader::type_string() const
+{
+  return type_string(m_type);
 }
 
 void shader::set_source(const std::string& source)

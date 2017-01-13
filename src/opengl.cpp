@@ -11,6 +11,7 @@
 #include "api.hpp"
 #include "debug.hpp"
 #include "opengl.hpp"
+#include "opengl_error.hpp"
 
 /* -- Namespaces -- */
 
@@ -33,6 +34,11 @@ opengl::opengl()
     glewExperimental = GL_TRUE;
     if (glewInit() != GL_NO_ERROR)
       throw std::runtime_error("Failed to initialize GLEW!");
+
+    // there is a bug where GLEW triggers an error on init. flush it from the queue.
+    // http://stackoverflow.com/q/20034615/434245
+    GLenum error __attribute__((unused)) = opengl_error::last_error();
+    lineage_assert(error == GL_INVALID_ENUM);
 
     lineage_log_status("OpenGL initialized.",
                        "API Version:\t\t" + api_version(),

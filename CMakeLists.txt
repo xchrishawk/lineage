@@ -34,8 +34,10 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/input_manager.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/opengl.cpp
+  ${SOURCE_DIR}/opengl_error.cpp
   ${SOURCE_DIR}/prototype_render_manager.cpp
   ${SOURCE_DIR}/prototype_state_manager.cpp
+  ${SOURCE_DIR}/shader.cpp
   ${SOURCE_DIR}/shader_source.cpp
   ${SOURCE_DIR}/window.cpp)
 

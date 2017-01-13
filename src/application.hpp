@@ -91,6 +91,10 @@ namespace lineage
     void do_state(double abs_t, double delta_t);
     void do_render(double abs_t, double delta_t);
 
+#if defined(LINEAGE_DEBUG)
+    void prototype_function();
+#endif
+
   };
 
 }

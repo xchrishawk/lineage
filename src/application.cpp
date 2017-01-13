@@ -31,6 +31,10 @@ application::application(lineage::window& window,
 {
   m_input_manager.add_observer(this);
   lineage_log_status("Application launched succesfully.");
+
+#if defined(LINEAGE_DEBUG)
+  prototype_function();
+#endif
 }
 
 application::~application()
@@ -103,3 +107,18 @@ void application::do_render(double abs_t, double delta_t)
   m_render_manager.render(args);
   m_window.swap_buffers();
 }
+
+#if defined(LINEAGE_DEBUG)
+
+#include "shader.hpp"
+#include "shader_source.hpp"
+
+void application::prototype_function()
+{
+  auto src = shader_source_string(shader_source::prototype_vertex_shader);
+  shader vert(GL_VERTEX_SHADER);
+  vert.set_source(src);
+  vert.compile();
+}
+
+#endif

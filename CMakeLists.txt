@@ -5,21 +5,27 @@
 
 # -- Project Configuration --
 
+# CMake configuration
 cmake_minimum_required(VERSION 2.8.7)
-project(lineage)
-
-# CMake packages
 find_package(PkgConfig)
+
+# Project name
+project(lineage)
 
 # Targets
 set(MAIN_TARGET ${CMAKE_PROJECT_NAME})
 
+# Toolchain configuration
+set(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
+
+# -- Inputs --
+
 # Directories
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/shader)
 set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
-
-# Include directory
-list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${SOURCE_DIR})
 
 # Source files
 set(MAIN_TARGET_SOURCES
@@ -30,12 +36,16 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/opengl.cpp
   ${SOURCE_DIR}/prototype_render_manager.cpp
   ${SOURCE_DIR}/prototype_state_manager.cpp
+  ${SOURCE_DIR}/shader_source.cpp
   ${SOURCE_DIR}/window.cpp)
 
-# Toolchain configuration
-set(CMAKE_CXX_FLAGS "-std=gnu++14 -Wall -Wpedantic")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-Werror -O2 -s")
+# Shader files
+set(MAIN_TARGET_SHADERS
+  ${SHADER_DIR}/prototype_vertex_shader.glsl
+  ${SHADER_DIR}/prototype_fragment_shader.glsl)
+
+# Allow relative includes for source files
+list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${SOURCE_DIR})
 
 # -- Platform Configuration --
 
@@ -84,24 +94,45 @@ endif()
 
 # -- Third Party Libraries --
 
-# GLEW
-pkg_check_modules(GLEW REQUIRED glew)
-list(APPEND MAIN_TARGET_COMPILE_OPTIONS ${GLEW_CFLAGS_OTHER})
-list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${GLEW_INCLUDE_DIRS})
-list(APPEND MAIN_TARGET_LINK_LIBRARIES ${GLEW_LIBRARIES})
-link_directories(${GLEW_LIBRARY_DIRS})
+# Requires...
+# - GLEW (OpenGL Extension Wrangler)
+# - GLFW3 (OpenGL window library)
+set(PKG_CONFIG_LIBRARIES glew glfw3)
 
-# GLFW3
-pkg_check_modules(GLFW REQUIRED glfw3)
-list(APPEND MAIN_TARGET_COMPILE_OPTIONS ${GLFW_CFLAGS_OTHER})
-list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${GLFW_INCLUDE_DIRS})
-list(APPEND MAIN_TARGET_LINK_LIBRARIES ${GLFW_LIBRARIES})
-link_directories(${GLFW_LIBRARY_DIRS})
+# Configure each required library with pkg-config
+foreach(LIBNAME ${PKG_CONFIG_LIBRARIES})
+  pkg_check_modules(${LIBNAME} REQUIRED ${LIBNAME})
+  list(APPEND MAIN_TARGET_COMPILE_OPTIONS ${${LIBNAME}_CFLAGS_OTHER})
+  list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${${LIBNAME}_INCLUDE_DIRS})
+  list(APPEND MAIN_TARGET_LINK_LIBRARIES ${${LIBNAME}_LIBRARIES})
+  link_directories(${${LIBNAME}_LIBRARY_DIRS})
+endforeach(LIBNAME)
+
+# -- Shader Processing --
+
+# Create directory for shader include files
+set(PROCESSED_SHADER_DIR ${CMAKE_BINARY_DIR}/shader)
+file(MAKE_DIRECTORY ${PROCESSED_SHADER_DIR})
+list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${PROCESSED_SHADER_DIR})
+
+# Process each shader
+foreach(SHADER ${MAIN_TARGET_SHADERS})
+  get_filename_component(SHADER_FILE_NAME ${SHADER} NAME)
+  set(SHADER_OUTPUT_PATH "${PROCESSED_SHADER_DIR}/${SHADER_FILE_NAME}.inc")
+  list(APPEND MAIN_TARGET_PROCESSED_SHADERS ${SHADER_OUTPUT_PATH})
+  add_custom_command(
+    DEPENDS ${SHADER}
+    OUTPUT ${SHADER_OUTPUT_PATH}
+    COMMAND cat ${SHADER} | xxd -i > ${SHADER_OUTPUT_PATH}
+    COMMENT "Processing ${SHADER}")
+endforeach(SHADER)
 
 # -- Main Executable --
 
 # Build main executable
-add_executable(${MAIN_TARGET} ${MAIN_TARGET_SOURCES})
+add_executable(${MAIN_TARGET}
+  ${MAIN_TARGET_SOURCES}
+  ${MAIN_TARGET_PROCESSED_SHADERS})
 target_compile_definitions(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_COMPILE_DEFINITIONS})
 target_compile_options(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_COMPILE_OPTIONS})
 target_include_directories(${MAIN_TARGET} PRIVATE ${MAIN_TARGET_INCLUDE_DIRECTORIES})

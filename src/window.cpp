@@ -54,7 +54,7 @@ window::window(const window_args& args)
     glfwSetKeyCallback(m_handle, window::key_callback);
     glfwSwapInterval(args.swap_interval);
 
-    lineage_log_status("GLFW initialized!", "API Version:\t\t" + api_version());
+    lineage_log_status("GLFW initialized!", "API Version:\t\t\t" + api_version());
   }
   catch (...)
   {

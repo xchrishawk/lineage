@@ -49,47 +49,33 @@ namespace lineage
     /**
      * Returns the OpenGL `GL_VERSION` string.
      */
-    std::string api_version() const
-    {
-      return get_string(GL_VERSION);
-    }
+    std::string api_version() const;
 
     /**
      * Returns the OpenGL `GL_SHADING_LANGUAGE_VERSION` string.
      */
-    std::string shading_language_version() const
-    {
-      return get_string(GL_SHADING_LANGUAGE_VERSION);
-    }
+    std::string shading_language_version() const;
 
     /**
      * Returns the OpenGL `GL_RENDERER` string.
      */
-    std::string renderer() const
-    {
-      return get_string(GL_RENDERER);
-    }
+    std::string renderer() const;
 
     /**
      * Returns the OpenGL `GL_VERSION` string.
      */
-    std::string vendor() const
-    {
-      return get_string(GL_VENDOR);
-    }
+    std::string vendor() const;
+
+    /**
+     * Returns `true` if the ARB extension with the specified name is supported.
+     */
+    bool is_supported(const std::string& extension) const;
 
     /* -- Implementation -- */
 
   private:
 
     static lineage::opengl* s_instance;
-
-    static std::string get_string(GLenum name)
-    {
-      const GLubyte* ustr = glGetString(name);
-      const char* cstr = reinterpret_cast<const char*>(ustr);
-      return std::string(cstr);
-    }
 
   };
 

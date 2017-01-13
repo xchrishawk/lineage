@@ -26,6 +26,12 @@ namespace lineage
   {
     invalid,
     application_exit,
+    color_red_increase,
+    color_red_decrease,
+    color_green_increase,
+    color_green_decrease,
+    color_blue_increase,
+    color_blue_decrease,
   };
 
   /**

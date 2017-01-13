@@ -58,6 +58,12 @@ input_type input_manager::input_type_for_key_event(int key, int mods)
     switch (key)
     {
     case GLFW_KEY_ESCAPE:	return input_type::application_exit;
+    case GLFW_KEY_U:		return input_type::color_red_increase;
+    case GLFW_KEY_J:		return input_type::color_red_decrease;
+    case GLFW_KEY_I:		return input_type::color_green_increase;
+    case GLFW_KEY_K:		return input_type::color_green_decrease;
+    case GLFW_KEY_O:		return input_type::color_blue_increase;
+    case GLFW_KEY_L:		return input_type::color_blue_decrease;
     default:      		return input_type::invalid;
     }
 

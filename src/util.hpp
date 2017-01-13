@@ -40,14 +40,12 @@ namespace lineage
    * Clamps `value` to between `min` and `max`.
    */
   template <typename T>
-  T clamp(T value, T min, T max)
+  void clamp(T& value, T min, T max)
   {
     if (value < min)
-      return min;
+      value = min;
     else if (value > max)
-      return max;
-    else
-      return value;
+      value = max;
   }
 
   /**

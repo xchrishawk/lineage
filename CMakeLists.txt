@@ -18,6 +18,9 @@ set(MAIN_TARGET ${CMAKE_PROJECT_NAME})
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+# Include directory
+list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${SOURCE_DIR})
+
 # Source files
 set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/application.cpp
@@ -25,6 +28,8 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/input_manager.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/opengl.cpp
+  ${SOURCE_DIR}/prototype_render_manager.cpp
+  ${SOURCE_DIR}/prototype_state_manager.cpp
   ${SOURCE_DIR}/window.cpp)
 
 # Toolchain configuration

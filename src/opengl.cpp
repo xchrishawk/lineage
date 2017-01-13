@@ -49,13 +49,6 @@ opengl::opengl()
 
 opengl::~opengl()
 {
-  if (this != s_instance)
-    return;
-
+  s_instance = nullptr;
   lineage_log_status("OpenGL terminated.");
-}
-
-opengl::opengl(opengl&& other)
-{
-  s_instance = this;
 }

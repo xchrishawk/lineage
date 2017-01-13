@@ -37,6 +37,20 @@ namespace lineage
 {
 
   /**
+   * Clamps `value` to between `min` and `max`.
+   */
+  template <typename T>
+  T clamp(T value, T min, T max)
+  {
+    if (value < min)
+      return min;
+    else if (value > max)
+      return max;
+    else
+      return value;
+  }
+
+  /**
    * Removes all instances of `value` from `container`.
    */
   template <typename TContainer, typename TValue>

@@ -18,22 +18,15 @@ using namespace lineage;
 
 /* -- Procedures -- */
 
-input_manager::input_manager()
-  : m_states(),
-    m_observers()
+input_manager::input_manager(const window& window)
+  : m_window(window)
 {
-}
-
-input_manager::input_manager(input_manager&& other) noexcept
-  : m_states(),
-    m_observers()
-{
-  std::swap(m_observers, other.m_observers);
-  std::swap(m_states, other.m_states);
+  m_window.add_observer(this);
 }
 
 input_manager::~input_manager()
 {
+  m_window.remove_observer(this);
 }
 
 void input_manager::set_input_state(lineage::input_type type, lineage::input_state state)

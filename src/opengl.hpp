@@ -35,12 +35,12 @@ namespace lineage
      */
     opengl();
 
-    opengl(lineage::opengl&& other);
     ~opengl();
 
   private:
 
     opengl(const lineage::opengl&) = delete;
+    opengl(lineage::opengl&&) = delete;
     lineage::opengl& operator =(const lineage::opengl&) = delete;
     lineage::opengl& operator =(lineage::opengl&&) = delete;
 

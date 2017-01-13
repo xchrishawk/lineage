@@ -63,20 +63,8 @@ window::window(const window_args& args)
   }
 }
 
-window::window(window&& other) noexcept
-  : m_handle(nullptr),
-    m_observers()
-{
-  std::swap(m_handle, other.m_handle);
-  std::swap(m_observers, other.m_observers);
-  s_instance = this;
-}
-
 window::~window()
 {
-  if (this != s_instance)
-    return;
-
   glfwDestroyWindow(m_handle);
   glfwTerminate();
 

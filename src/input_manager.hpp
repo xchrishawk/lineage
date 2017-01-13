@@ -54,7 +54,7 @@ namespace lineage
      * @param state
      * The current state of the input.
      */
-    virtual void input_event(lineage::input_type type, lineage::input_state active) = 0;
+    virtual void input_event(lineage::input_type type, lineage::input_state state) = 0;
 
   };
 
@@ -68,13 +68,20 @@ namespace lineage
 
   public:
 
-    input_manager();
-    input_manager(lineage::input_manager&& other) noexcept;
+    /**
+     * Constructs a new `lineage::input_manager` instance.
+     *
+     * @param window
+     * The application's main window.
+     */
+    input_manager(const lineage::window& window);
+
     ~input_manager();
 
   private:
 
     input_manager(const lineage::input_manager&) = delete;
+    input_manager(lineage::input_manager&&) = delete;
     lineage::input_manager& operator =(const lineage::input_manager&) = delete;
     lineage::input_manager& operator =(lineage::input_manager&&) = delete;
 
@@ -99,7 +106,7 @@ namespace lineage
     /**
      * Adds an observer to the input manager.
      */
-    void add_observer(lineage::input_observer* observer)
+    void add_observer(lineage::input_observer* observer) const
     {
       m_observers.push_back(observer);
     }
@@ -107,7 +114,7 @@ namespace lineage
     /**
      * Removes an observer from the input manager.
      */
-    void remove_observer(lineage::input_observer* observer)
+    void remove_observer(lineage::input_observer* observer) const
     {
       lineage::remove_all(m_observers, observer);
     }
@@ -122,8 +129,9 @@ namespace lineage
 
   private:
 
+    const lineage::window& m_window;
     std::unordered_map<lineage::input_type, lineage::input_state, lineage::enum_class_hash> m_states;
-    std::vector<lineage::input_observer*> m_observers;
+    mutable std::vector<lineage::input_observer*> m_observers;
 
     lineage::input_type input_type_for_key_event(int key, int mods);
     lineage::input_state input_state_for_key_event(int action);

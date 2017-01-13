@@ -85,12 +85,12 @@ namespace lineage
      */
     window(const lineage::window_args& args);
 
-    window(lineage::window&& other) noexcept;
     ~window();
 
   private:
 
     window(const lineage::window&) = delete;
+    window(lineage::window&&) = delete;
     lineage::window& operator =(const lineage::window&) = delete;
     lineage::window& operator =(lineage::window&&) = delete;
 
@@ -149,7 +149,7 @@ namespace lineage
     /**
      * Adds an observer to this window.
      */
-    void add_observer(lineage::window_observer* observer)
+    void add_observer(lineage::window_observer* observer) const
     {
       m_observers.push_back(observer);
     }
@@ -157,7 +157,7 @@ namespace lineage
     /**
      * Removes an observer from this window.
      */
-    void remove_observer(lineage::window_observer* observer)
+    void remove_observer(lineage::window_observer* observer) const
     {
       lineage::remove_all(m_observers, observer);
     }
@@ -171,7 +171,7 @@ namespace lineage
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     GLFWwindow* m_handle;
-    std::vector<window_observer*> m_observers;
+    mutable std::vector<window_observer*> m_observers;
 
   };
 

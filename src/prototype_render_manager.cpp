@@ -10,17 +10,38 @@
 #include "prototype_render_manager.hpp"
 #include "prototype_state_manager.hpp"
 #include "render_manager.hpp"
+#include "shader.hpp"
+#include "shader_program.hpp"
+#include "shader_source.hpp"
 
 /* -- Namespaces -- */
 
 using namespace lineage;
+
+/* -- Private Procedures -- */
+
+namespace
+{
+
+  /** Creates the prototype shader program. */
+  shader_program create_prototype_shader_program()
+  {
+    auto vertex_shader
+      = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::prototype_vertex_shader));
+    auto fragment_shader
+      = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::prototype_fragment_shader));
+    return create_shader_program({ &vertex_shader, &fragment_shader });
+  }
+
+}
 
 /* -- Procedures -- */
 
 prototype_render_manager::prototype_render_manager(lineage::opengl& opengl,
                                                    const lineage::prototype_state_manager& state_manager)
   : m_opengl(opengl),
-    m_state_manager(state_manager)
+    m_state_manager(state_manager),
+    m_program(create_prototype_shader_program())
 {
 }
 

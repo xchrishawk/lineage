@@ -9,6 +9,7 @@
 /* -- Includes -- */
 
 #include <string>
+#include <utility>
 
 #include "api.hpp"
 #include "opengl_error.hpp"
@@ -50,11 +51,6 @@ namespace lineage
   public:
 
     /**
-     * Invalid shader program handle.
-     */
-    static const GLuint invalid_handle = 0;
-
-    /**
      * Invalid attribute/uniform location.
      */
     static const GLint invalid_location = -1;
@@ -71,12 +67,12 @@ namespace lineage
      */
     shader_program();
 
+    shader_program(lineage::shader_program&&) noexcept;
     ~shader_program();
 
   private:
 
     shader_program(const lineage::shader_program&) = delete;
-    shader_program(lineage::shader_program&&) = delete;
     lineage::shader_program& operator =(const lineage::shader_program&) = delete;
     lineage::shader_program& operator =(lineage::shader_program&&) = delete;
 
@@ -98,10 +94,10 @@ namespace lineage
      * Links the program.
      *
      * @exception lineage::opengl_error
-     * Thrown is the shader cannot be compiled due to a generic OpenGL error.
+     * Thrown is the shader program cannot be linked due to a generic OpenGL error.
      *
      * @exception lineage::shader_program_link_error
-     * Thrown if the shader cannot be compiled due to a program-specific error.
+     * Thrown if the shader program cannot be linked due to a program-specific error.
      */
     void link();
 
@@ -146,8 +142,20 @@ namespace lineage
 
   private:
 
-    const GLuint m_handle;
+    GLuint m_handle;
 
   };
+
+}
+
+/* -- Procedure Prototypes -- */
+
+namespace lineage
+{
+
+  /**
+   * Creates and links a shader program using the specified shdaers.
+   */
+  lineage::shader_program create_shader_program(const std::initializer_list<lineage::shader*>& shaders);
 
 }

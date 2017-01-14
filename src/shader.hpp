@@ -46,15 +46,6 @@ namespace lineage
   class shader
   {
 
-    /* -- Constants -- */
-
-  public:
-
-    /**
-     * Invalid shader handle.
-     */
-    static const GLuint invalid_handle = 0;
-
     /* -- Lifecycle -- */
 
   public:
@@ -70,14 +61,14 @@ namespace lineage
      */
     shader(GLenum type);
 
+    shader(lineage::shader&& other) noexcept;
     ~shader();
 
   private:
 
     shader(const lineage::shader&) = delete;
-    shader(lineage::shader&& other) noexcept;
     lineage::shader& operator =(const lineage::shader&) = delete;
-    lineage::shader& operator =(lineage::shader&& other) noexcept;
+    lineage::shader& operator =(lineage::shader&&) = delete;
 
     /* -- Public Methods -- */
 
@@ -130,9 +121,21 @@ namespace lineage
 
     friend class lineage::shader_program;
 
-    const GLenum m_type;
-    const GLuint m_handle;
+    GLenum m_type;
+    GLuint m_handle;
 
   };
+
+}
+
+/* -- Procedure Prototypes -- */
+
+namespace lineage
+{
+
+  /**
+   * Creates, compiles, and returns a shader with the specified type and source code string.
+   */
+  lineage::shader create_shader(GLenum type, const std::string& source);
 
 }

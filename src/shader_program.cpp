@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <sstream>
+#include <utility>
 
 #include "api.hpp"
 #include "opengl_error.hpp"
@@ -17,6 +18,13 @@
 /* -- Namespaces -- */
 
 using namespace lineage;
+
+/* -- Constants -- */
+
+namespace
+{
+  const GLuint INVALID_HANDLE = 0;
+}
 
 /* -- Private Procedures -- */
 
@@ -38,12 +46,20 @@ namespace
 shader_program::shader_program()
   : m_handle(glCreateProgram())
 {
-  if (m_handle == invalid_handle)
+  if (m_handle == INVALID_HANDLE)
     opengl_error::throw_last_error();
+}
+
+shader_program::shader_program(shader_program&& other) noexcept
+  : m_handle(INVALID_HANDLE)
+{
+  std::swap(m_handle, other.m_handle);
 }
 
 shader_program::~shader_program()
 {
+  if (m_handle == INVALID_HANDLE)
+    return;
   glDeleteProgram(m_handle);
 }
 
@@ -117,4 +133,19 @@ GLint shader_program::attribute_location(const std::string& name) const
 GLint shader_program::uniform_location(const std::string& name) const
 {
   return glGetUniformLocation(m_handle, name.c_str());
+}
+
+shader_program lineage::create_shader_program(const std::initializer_list<shader*>& shaders)
+{
+  shader_program program;
+
+  for (const auto* shader : shaders)
+    program.attach_shader(*shader);
+
+  program.link();
+
+  for (const auto* shader : shaders)
+    program.detach_shader(*shader);
+
+  return program;
 }

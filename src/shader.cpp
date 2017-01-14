@@ -8,14 +8,24 @@
 
 #include <memory>
 #include <sstream>
+#include <utility>
 
 #include "api.hpp"
 #include "opengl_error.hpp"
 #include "shader.hpp"
+#include "shader_source.hpp"
 
 /* -- Namespaces -- */
 
 using namespace lineage;
+
+/* -- Constants -- */
+
+namespace
+{
+  const GLenum INVALID_TYPE = 0;
+  const GLuint INVALID_HANDLE = 0;
+}
 
 /* -- Procedures -- */
 
@@ -23,12 +33,22 @@ shader::shader(GLenum type)
   : m_type(type),
     m_handle(glCreateShader(type))
 {
-  if (m_handle == invalid_handle)
+  if (m_handle == INVALID_HANDLE)
     opengl_error::throw_last_error();
+}
+
+shader::shader(shader&& other) noexcept
+  : m_type(INVALID_TYPE),
+    m_handle(INVALID_HANDLE)
+{
+  std::swap(m_type, other.m_type);
+  std::swap(m_handle, other.m_handle);
 }
 
 shader::~shader()
 {
+  if (m_handle == INVALID_HANDLE)
+    return;
   glDeleteShader(m_handle);
 }
 
@@ -107,4 +127,12 @@ const std::string& shader::type_string(GLenum shader_type)
   case GL_VERTEX_SHADER:		return GL_VERTEX_SHADER_STRING;
   default:				return UNKNOWN_SHADER_STRING;
   }
+}
+
+shader lineage::create_shader(GLenum type, const std::string& source)
+{
+  shader shader(type);
+  shader.set_source(source);
+  shader.compile();
+  return shader;
 }

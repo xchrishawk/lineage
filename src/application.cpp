@@ -6,14 +6,17 @@
 
 /* -- Includes -- */
 
+#include <sstream>
 #include <utility>
 
 #include "application.hpp"
 #include "debug.hpp"
 #include "input_manager.hpp"
 #include "opengl.hpp"
+#include "opengl_error.hpp"
 #include "render_manager.hpp"
 #include "state_manager.hpp"
+#include "util.hpp"
 #include "window.hpp"
 
 /* -- Namespaces -- */
@@ -110,16 +113,22 @@ void application::do_render(double abs_t, double delta_t)
 
   m_render_manager.render(args);
   m_window.swap_buffers();
+
+#if defined(LINEAGE_DEBUG)
+  GLenum error = opengl_error::last_error();
+  if (error != GL_NO_ERROR)
+  {
+    std::ostringstream message;
+    message << "Unexpected OpenGL error! " << opengl_error::error_string(error);
+    lineage_log_warning(message.str());
+  }
+#endif
 }
 
 #if defined(LINEAGE_DEBUG)
 
-#include "shader_program.hpp"
-
 void application::prototype_function()
 {
-  shader_program prog;
-  prog.link();
 }
 
 #endif

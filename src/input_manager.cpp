@@ -33,7 +33,7 @@ input_manager::~input_manager()
 input_state input_manager::input_state(input_type type) const
 {
   const auto it = m_states.find(type);
-  return (it != m_states.end() ? it->second : input_state::invalid);
+  return (it != m_states.end() ? it->second : lineage::input_state::invalid);
 }
 
 void input_manager::set_input_state(lineage::input_type type, lineage::input_state state)

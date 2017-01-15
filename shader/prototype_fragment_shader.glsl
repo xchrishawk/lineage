@@ -5,9 +5,11 @@
 
 #version 330 core
 
+in vec4 frag_color;
+
 out vec4 color;
 
 void main(void)
 {
-  color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  color = frag_color;
 }

@@ -62,11 +62,11 @@ vertex_array::~vertex_array()
   glDeleteVertexArrays(1, &m_handle);
 }
 
-void vertex_array::set_attribute_format(GLuint attribute, size_t size, GLenum type, bool normalized, size_t relative_offset)
+void vertex_array::set_attribute_format(GLuint attribute, size_t count, GLenum type, bool normalized, size_t relative_offset)
 {
   glVertexArrayAttribFormat(m_handle,					// vaobj
                             attribute,					// attribindex
-                            static_cast<GLint>(size),			// size
+                            static_cast<GLint>(count),			// size
                             type,					// type
                             normalized ? GL_TRUE : GL_FALSE,		// normalized
                             static_cast<GLuint>(relative_offset));	// relativeoffset
@@ -111,24 +111,28 @@ void vertex_array::unbind_buffer(GLuint binding_index)
                             0);						// stride
 }
 
-void lineage::vertex_array_initialize_attribute(vertex_array& vao,
-                                                const shader_program& program,
-                                                const std::string& attribute_name,
-                                                const vertex_array_attrib_spec& spec)
+void lineage::configure_attribute(vertex_array& vao,
+                                  GLuint binding_index,
+                                  const shader_program& program,
+                                  const std::string& attribute_name,
+                                  const attribute_spec& spec,
+                                  bool enabled)
 {
   auto attribute_index = program.attribute_location(attribute_name);
   if (attribute_index != shader_program::invalid_location)
-    vertex_array_initialize_attribute(vao, attribute_index, spec);
+    configure_attribute(vao, binding_index, attribute_index, spec);
   else
     lineage_log_warning("Vertex attribute " + attribute_name + " not found in shader program!");
 }
 
 
-void lineage::vertex_array_initialize_attribute(vertex_array& vao,
-                                                GLuint attribute_index,
-                                                const vertex_array_attrib_spec& spec)
+void lineage::configure_attribute(vertex_array& vao,
+                                  GLuint binding_index,
+                                  GLuint attribute_index,
+                                  const attribute_spec& spec,
+                                  bool enabled)
 {
-  vao.set_attribute_format(attribute_index, spec.size, spec.type, spec.normalized, spec.relative_offset);
-  vao.set_attribute_binding(attribute_index, spec.binding_index);
-  vao.set_attribute_array_enabled(attribute_index, spec.enabled);
+  vao.set_attribute_format(attribute_index, spec.count, spec.type, spec.normalized, spec.relative_offset);
+  vao.set_attribute_binding(attribute_index, binding_index);
+  vao.set_attribute_array_enabled(attribute_index, enabled);
 }

@@ -31,7 +31,14 @@ namespace lineage
 
   public:
 
+    /**
+     * Constructs a new `lineage::vertex_array` instance.
+     *
+     * @exception lineage::opengl_error
+     * Thrown if a new vertex array cannot be created for any reason.
+     */
     vertex_array();
+
     vertex_array(lineage::vertex_array&& other) noexcept;
     ~vertex_array();
 
@@ -51,7 +58,7 @@ namespace lineage
      * @param attribute
      * The attribute whose format is being set.
      *
-     * @param size
+     * @param count
      * The number of values per vertex stored in the array.
      *
      * @param type
@@ -64,7 +71,7 @@ namespace lineage
      * The relative offset from the beginning of the vertex record in the array to the beginning of
      * the data for this particular attribute.
      */
-    void set_attribute_format(GLuint attribute, size_t size, GLenum type, bool normalized, size_t relative_offset);
+    void set_attribute_format(GLuint attribute, size_t count, GLenum type, bool normalized, size_t relative_offset);
 
     /**
      * Configures the attribute with the specified location to pull data from the buffer bound to
@@ -94,10 +101,10 @@ namespace lineage
      * The buffer to bind to this binding index.
      *
      * @param offset
-     * The offset of the initial vertex record in the buffer.
+     * The offset of the initial vertex record in the buffer, in bytes.
      *
      * @param stride
-     * The total size of each vertex record in the buffer.
+     * The total size of each vertex record in the buffer, in bytes.
      */
     void bind_buffer(GLuint binding_index, const lineage::buffer& buffer, size_t offset, size_t stride);
 
@@ -119,14 +126,12 @@ namespace lineage
   /**
    * Struct containing data required to initialize a vertex array attribute.
    */
-  struct vertex_array_attrib_spec
+  struct attribute_spec
   {
-    GLuint binding_index;
-    size_t size;
-    GLenum type;
-    bool normalized;
-    size_t relative_offset;
-    bool enabled;
+    size_t count;		/**< Number of values per attribute. */
+    GLenum type;		/**< Type of value used. */
+    bool normalized;		/**< If `true`, values will be normalized. */
+    size_t relative_offset;	/**< Relative offset of values in vertex data. */
   };
 
 }
@@ -143,16 +148,20 @@ namespace lineage
    * @note
    * If the requested attribute name is not found, a warning will be printed to the debug log.
    */
-  void vertex_array_initialize_attribute(lineage::vertex_array& vao,
-                                         const lineage::shader_program& program,
-                                         const std::string& attribute_name,
-                                         const lineage::vertex_array_attrib_spec& spec);
+  void configure_attribute(lineage::vertex_array& vao,
+                           GLuint binding_index,
+                           const lineage::shader_program& program,
+                           const std::string& attribute_name,
+                           const lineage::attribute_spec& spec,
+                           bool enabled = true);
 
   /**
-   * Same as `vertex_array_initialize_attribute`, but allows directly specifying the attribute index.
+   * Same as `configure_attribute`, but allows directly specifying the attribute index.
    */
-  void vertex_array_initialize_attribute(lineage::vertex_array& vao,
-                                         GLuint attribute_index,
-                                         const lineage::vertex_array_attrib_spec& spec);
+  void configure_attribute(lineage::vertex_array& vao,
+                           GLuint binding_index,
+                           GLuint attribute_index,
+                           const lineage::attribute_spec& spec,
+                           bool enabled = true);
 
 }

@@ -16,6 +16,7 @@
 #include "shader_program.hpp"
 #include "shader_source.hpp"
 #include "util.hpp"
+#include "vertex.hpp"
 #include "vertex_array.hpp"
 
 /* -- Namespaces -- */
@@ -26,24 +27,15 @@ using namespace lineage;
 
 namespace
 {
-  constexpr vertex_array_attrib_spec VERTEX_POSITION_ATTRIBUTE_SPEC =
+  const GLuint BINDING_INDEX = 0;
+  const vertex VERTEX_DATA[] =
   {
-    0,			// binding_index
-    4,			// size
-    GL_FLOAT,		// type
-    false,		// normalized
-    0,			// relative_offset
-    true,		// enabled
-  };
-
-  constexpr float VERTEX_DATA[] =
-  {
-    0.0f, 0.0f, 0.0f, 1.0f,
-    0.5f, 0.0f, 0.0f, 1.0f,
-    0.0f, 0.5f, 0.0f, 1.0f,
-    0.0f, 0.0f, 0.0f, 1.0f,
-    -0.5f, 0.0f, 0.0f, 1.0f,
-    0.0f, -0.5f, 0.0f, 1.0f,
+    { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+    { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+    { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+    { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
   };
 }
 
@@ -72,7 +64,8 @@ namespace
   vertex_array create_vertex_array(const shader_program& program)
   {
     vertex_array vao;
-    vertex_array_initialize_attribute(vao, program, "vertex_position", VERTEX_POSITION_ATTRIBUTE_SPEC);
+    configure_attribute(vao, BINDING_INDEX, program, "vertex_position", vertex::position_spec);
+    configure_attribute(vao, BINDING_INDEX, program, "vertex_color", vertex::color_spec);
     return vao;
   }
 
@@ -113,14 +106,11 @@ void prototype_render_manager::render(const render_args& args)
   defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
 
   // bind vertex buffer
-  m_vao.bind_buffer(VERTEX_POSITION_ATTRIBUTE_SPEC.binding_index,
-                    m_buffer,
-                    0,
-                    VERTEX_POSITION_ATTRIBUTE_SPEC.size * sizeof(float));
-  defer unbind_buffer([&] { m_vao.unbind_buffer(VERTEX_POSITION_ATTRIBUTE_SPEC.binding_index); });
+  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex));
+  defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
 
   // draw vertices
-  glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA) / VERTEX_POSITION_ATTRIBUTE_SPEC.size);
+  glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA));
 }
 
 double prototype_render_manager::target_delta_t() const

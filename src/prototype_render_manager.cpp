@@ -28,14 +28,14 @@ using namespace lineage;
 namespace
 {
   const GLuint BINDING_INDEX = 0;
-  const vertex VERTEX_DATA[] =
+  const vertex3x4 VERTEX_DATA[] =
   {
-    { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-    { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-    { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-    { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-    { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-    { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+    { { 0.0f, 0.0f, 0.0f },  { 1.0f, 0.0f, 0.0f, 1.0f } },
+    { { 0.5f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+    { { 0.0f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+    { { -0.5f, 0.0f, 0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
   };
 }
 
@@ -64,8 +64,8 @@ namespace
   vertex_array create_vertex_array(const shader_program& program)
   {
     vertex_array vao;
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_position", vertex::position_spec);
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_color", vertex::color_spec);
+    configure_attribute(vao, BINDING_INDEX, program, "vertex_position", position_attribute_spec<vertex3x4>());
+    configure_attribute(vao, BINDING_INDEX, program, "vertex_color", color_attribute_spec<vertex3x4>());
     return vao;
   }
 
@@ -106,7 +106,7 @@ void prototype_render_manager::render(const render_args& args)
   defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
 
   // bind vertex buffer
-  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex));
+  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex3x4));
   defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
 
   // draw vertices

@@ -32,6 +32,8 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/application.cpp
   ${SOURCE_DIR}/buffer.cpp
   ${SOURCE_DIR}/debug.cpp
+  ${SOURCE_DIR}/default_render_manager.cpp
+  ${SOURCE_DIR}/default_state_manager.cpp
   ${SOURCE_DIR}/input_manager.cpp
   ${SOURCE_DIR}/main.cpp
   ${SOURCE_DIR}/opengl.cpp

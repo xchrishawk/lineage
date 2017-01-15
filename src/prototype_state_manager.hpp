@@ -21,7 +21,7 @@ namespace lineage
   /**
    * State manager used for prototyping and testing.
    */
-  class prototype_state_manager : public lineage::state_manager
+  class prototype_state_manager final : public lineage::state_manager
   {
 
     /* -- Lifecycle -- */
@@ -36,7 +36,14 @@ namespace lineage
      */
     prototype_state_manager(const lineage::input_manager& input_manager);
 
-    virtual ~prototype_state_manager();
+    virtual ~prototype_state_manager() = default;
+
+  private:
+
+    prototype_state_manager(const lineage::prototype_state_manager&) = delete;
+    prototype_state_manager(lineage::prototype_state_manager&&) = delete;
+    lineage::prototype_state_manager& operator =(const lineage::prototype_state_manager&) = delete;
+    lineage::prototype_state_manager& operator =(lineage::prototype_state_manager&&) = delete;
 
     /* -- Public Methods -- */
 

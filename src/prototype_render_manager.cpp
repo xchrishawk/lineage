@@ -83,10 +83,6 @@ prototype_render_manager::prototype_render_manager(lineage::opengl& opengl,
 {
 }
 
-prototype_render_manager::~prototype_render_manager()
-{
-}
-
 void prototype_render_manager::render(const render_args& args)
 {
   auto background_color = m_state_manager.background_color();

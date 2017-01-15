@@ -24,7 +24,7 @@ namespace lineage
   /**
    * Render manager class used for prototyping and testing.
    */
-  class prototype_render_manager : public lineage::render_manager
+  class prototype_render_manager final : public lineage::render_manager
   {
 
     /* -- Lifecycle -- */
@@ -43,7 +43,14 @@ namespace lineage
     prototype_render_manager(lineage::opengl& opengl,
                              const lineage::prototype_state_manager& state_manager);
 
-    ~prototype_render_manager();
+    virtual ~prototype_render_manager() = default;
+
+  private:
+
+    prototype_render_manager(const lineage::prototype_render_manager&) = delete;
+    prototype_render_manager(lineage::prototype_render_manager&&) = delete;
+    lineage::prototype_render_manager& operator =(const lineage::prototype_render_manager&) = delete;
+    lineage::prototype_render_manager& operator =(lineage::prototype_render_manager&&) = delete;
 
   public:
 

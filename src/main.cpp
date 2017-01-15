@@ -11,6 +11,8 @@
 
 #include "application.hpp"
 #include "debug.hpp"
+#include "default_render_manager.hpp"
+#include "default_state_manager.hpp"
 #include "input_manager.hpp"
 #include "opengl.hpp"
 #include "prototype_render_manager.hpp"
@@ -73,8 +75,14 @@ namespace
     lineage::window window { args };
     lineage::opengl opengl { };
     lineage::input_manager input_manager { window };
+
+#if defined(LINEAGE_PROTOTYPE)
     lineage::prototype_state_manager state_manager { input_manager };
     lineage::prototype_render_manager render_manager { opengl, state_manager };
+#else
+    lineage::default_state_manager state_manager { input_manager };
+    lineage::default_render_manager render_manager { opengl, state_manager };
+#endif
 
     application app { window, opengl, input_manager, state_manager, render_manager };
     app.main();

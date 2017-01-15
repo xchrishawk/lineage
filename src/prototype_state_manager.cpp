@@ -22,10 +22,6 @@ prototype_state_manager::prototype_state_manager(const lineage::input_manager& i
 {
 }
 
-prototype_state_manager::~prototype_state_manager()
-{
-}
-
 void prototype_state_manager::run(const state_args& args)
 {
   update_background_color(args);

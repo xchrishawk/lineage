@@ -53,7 +53,7 @@ namespace lineage
      * @param args
      * The arguments required to render a frame.
      */
-    virtual void render(const render_args& args) = 0;
+    virtual void render(const lineage::render_args& args) = 0;
 
     /**
      * The target time between rendered frames, in seconds.

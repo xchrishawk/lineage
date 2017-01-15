@@ -32,12 +32,12 @@ namespace lineage
 
   public:
 
+    buffer(lineage::buffer&& other) noexcept;
     virtual ~buffer();
 
   private:
 
     buffer(const lineage::buffer&) = delete;
-    buffer(lineage::buffer&&) = delete;
     lineage::buffer& operator =(const lineage::buffer&) = delete;
     lineage::buffer& operator =(lineage::buffer&&) = delete;
 
@@ -109,7 +109,9 @@ namespace lineage
 
   protected:
 
-    const GLuint m_handle;
+    friend class vertex_array;
+
+    GLuint m_handle;
 
   };
 
@@ -136,13 +138,13 @@ namespace lineage
      * @param data
      * The data to initialize the buffer with.
      *
-     * @param usage
-     * The usage flags for this buffer.
+     * @param flags
+     * The storage flags for this buffer.
      *
      * @note
      * This initializes the buffer using a call to `glNamedBufferStorage()`.
      */
-    immutable_buffer(size_t size, const void* data, GLenum usage);
+    immutable_buffer(size_t size, const void* data, GLbitfield flags);
 
   };
 

@@ -19,6 +19,7 @@
 namespace lineage
 {
 
+  class opengl;
   class shader;
 
   /**
@@ -141,6 +142,8 @@ namespace lineage
     /* -- Implementation -- */
 
   private:
+
+    friend class opengl;
 
     GLuint m_handle;
 

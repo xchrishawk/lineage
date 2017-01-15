@@ -13,6 +13,8 @@
 #include "debug.hpp"
 #include "opengl.hpp"
 #include "opengl_error.hpp"
+#include "shader_program.hpp"
+#include "vertex_array.hpp"
 
 /* -- Namespaces -- */
 
@@ -41,6 +43,8 @@ namespace
 /* -- Procedures -- */
 
 opengl::opengl()
+  : m_programs(),
+    m_vertex_arrays()
 {
   if (s_instance)
     throw std::logic_error("Attempted to initialize OpenGL while it was already initialized!");
@@ -103,4 +107,38 @@ std::string opengl::vendor() const
 bool opengl::is_supported(const std::string& name) const
 {
   return (glewIsSupported(name.c_str()) == GL_TRUE);
+}
+
+void opengl::push_program(const shader_program& program)
+{
+  m_programs.push_back(program.m_handle);
+  glUseProgram(program.m_handle);
+}
+
+void opengl::pop_program()
+{
+  if (m_programs.empty())
+  {
+    lineage_assert_fail("Attempted to pop shader program with no active shader program!");
+    return;
+  }
+  m_programs.pop_back();
+  glUseProgram(m_programs.empty() ? 0 : m_programs.back());
+}
+
+void opengl::push_vertex_array(const vertex_array& vao)
+{
+  m_vertex_arrays.push_back(vao.m_handle);
+  glBindVertexArray(vao.m_handle);
+}
+
+void opengl::pop_vertex_array()
+{
+  if (m_vertex_arrays.empty())
+  {
+    lineage_assert_fail("Attempted to pop vertex array with no active vertex array!");
+    return;
+  }
+  m_vertex_arrays.pop_back();
+  glBindVertexArray(m_vertex_arrays.empty() ? 0 : m_vertex_arrays.back());
 }

@@ -9,6 +9,7 @@
 /* -- Includes -- */
 
 #include <algorithm>
+#include <functional>
 
 /* -- Types -- */
 
@@ -27,6 +28,32 @@ namespace lineage
         return static_cast<std::size_t>(t);
     }
 
+  };
+
+  /**
+   * Class which performs a deferred action when it is destroyed.
+   */
+  class defer
+  {
+  public:
+
+    /**
+     * Constructs a new `lineage::defer` instance.
+     *
+     * @param action
+     * The action to execute when this object is destroyed.
+     */
+    defer(std::function<void(void)> action)
+      : m_action(action)
+    { }
+
+    ~defer()
+    {
+      m_action();
+    }
+
+  private:
+    std::function<void(void)> m_action;
   };
 
 }

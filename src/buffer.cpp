@@ -6,11 +6,21 @@
 
 /* -- Includes -- */
 
+#include <limits>
+
 #include "buffer.hpp"
+#include "opengl_error.hpp"
 
 /* -- Namespaces -- */
 
 using namespace lineage;
+
+/* -- Constants -- */
+
+namespace
+{
+  const GLuint INVALID_HANDLE = std::numeric_limits<GLuint>::max();
+}
 
 /* -- Private Procedures -- */
 
@@ -20,7 +30,7 @@ namespace
   /** Generate a new OpenGL buffer handle. */
   GLuint new_buffer_handle()
   {
-    GLuint handle = 0;
+    GLuint handle = INVALID_HANDLE;
     glCreateBuffers(1, &handle);
     return handle;
   }
@@ -48,10 +58,20 @@ namespace
 buffer::buffer()
   : m_handle(new_buffer_handle())
 {
+  if (m_handle == INVALID_HANDLE)
+    opengl_error::throw_last_error();
+}
+
+buffer::buffer(buffer&& other) noexcept
+  : m_handle(INVALID_HANDLE)
+{
+  std::swap(m_handle, other.m_handle);
 }
 
 buffer::~buffer()
 {
+  if (m_handle == INVALID_HANDLE)
+    return;
   glDeleteBuffers(1, &m_handle);
 }
 
@@ -115,8 +135,8 @@ GLenum buffer::map_access() const
   return static_cast<GLenum>(get_buffer_parameter(m_handle, GL_BUFFER_ACCESS));
 }
 
-immutable_buffer::immutable_buffer(size_t size, const void* data, GLenum usage)
+immutable_buffer::immutable_buffer(size_t size, const void* data, GLbitfield flags)
   : buffer()
 {
-  glNamedBufferStorage(m_handle, size, data, usage);
+  glNamedBufferStorage(m_handle, size, data, flags);
 }

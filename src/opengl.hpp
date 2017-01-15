@@ -9,6 +9,7 @@
 /* -- Includes -- */
 
 #include <string>
+#include <vector>
 
 #include "api.hpp"
 
@@ -16,6 +17,9 @@
 
 namespace lineage
 {
+
+  class shader_program;
+  class vertex_array;
 
   /**
    * Class representing an interface to the OpenGL library.
@@ -46,6 +50,8 @@ namespace lineage
 
     /* -- Public Methods -- */
 
+  public:
+
     /**
      * Returns the OpenGL `GL_VERSION` string.
      */
@@ -71,11 +77,36 @@ namespace lineage
      */
     bool is_supported(const std::string& extension) const;
 
+    /**
+     * Pushes a shader program onto the stack, making it active.
+     */
+    void push_program(const lineage::shader_program& program);
+
+    /**
+     * Pops the active shader program off of the stack, deactivating it and reactivating the
+     * previous shader program.
+     */
+    void pop_program();
+
+    /**
+     * Pushes a vertex array object onto the stack, making it active.
+     */
+    void push_vertex_array(const lineage::vertex_array& vao);
+
+    /**
+     * Pops the active vertex array object off of the stack, deactivating it and reactivating the
+     * previous vertex array.
+     */
+    void pop_vertex_array();
+
     /* -- Implementation -- */
 
   private:
 
     static lineage::opengl* s_instance;
+
+    std::vector<GLuint> m_programs;
+    std::vector<GLuint> m_vertex_arrays;
 
   };
 

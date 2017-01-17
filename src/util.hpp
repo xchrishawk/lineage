@@ -12,6 +12,24 @@
 #include <cmath>
 #include <functional>
 
+#include <glm/glm.hpp>
+
+/* -- Constants -- */
+
+namespace lineage
+{
+
+  /** `glm::vec3` representing a unit vector in the X direction. */
+  extern const glm::vec3 VEC3_UNIT_X;
+
+  /** `glm::vec3` representing a unit vector in the Y direction. */
+  extern const glm::vec3 VEC3_UNIT_Y;
+
+  /** `glm::vec3` representing a unit vector in the Z direction. */
+  extern const glm::vec3 VEC3_UNIT_Z;
+
+}
+
 /* -- Types -- */
 
 namespace lineage

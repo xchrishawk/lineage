@@ -87,6 +87,17 @@ input_type input_manager::input_type_for_key_event(int key, int mods)
     default:      			return input_type::invalid;
     }
 
+  case GLFW_MOD_SHIFT:
+    switch (key)
+    {
+    case GLFW_KEY_W:			return input_type::camera_rotation_pitch_down;
+    case GLFW_KEY_S:			return input_type::camera_rotation_pitch_up;
+    case GLFW_KEY_E:			return input_type::camera_rotation_roll_right;
+    case GLFW_KEY_Q:			return input_type::camera_rotation_roll_left;
+    case GLFW_KEY_D:			return input_type::camera_rotation_yaw_right;
+    case GLFW_KEY_A:			return input_type::camera_rotation_yaw_left;
+    }
+
   default:
     return input_type::invalid;
   }

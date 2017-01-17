@@ -33,6 +33,16 @@ using namespace lineage;
 
 namespace
 {
+  // Uniform locations
+  const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 0;
+  const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 1;
+
+  // Attribute locations
+  const GLuint VERTEX_POSITION_ATTRIBUTE_LOCATION = 0;
+  // const GLuint VERTEX_NORMAL_ATTRIBUTE_LOCATION = 1;
+  const GLuint VERTEX_COLOR_ATTRIBUTE_LOCATION = 2;
+
+  // Misc
   const GLuint BINDING_INDEX = 0;
   const vertex3x4 VERTEX_DATA[] =
   {
@@ -57,7 +67,15 @@ namespace
       = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
     auto fragment_shader
       = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
-    return create_shader_program({ &vertex_shader, &fragment_shader });
+    auto program
+      = create_shader_program({ &vertex_shader, &fragment_shader });
+
+    lineage_assert(program.uniform_location("view_matrix") == VIEW_MATRIX_UNIFORM_LOCATION);
+    lineage_assert(program.uniform_location("proj_matrix") == PROJ_MATRIX_UNIFORM_LOCATION);
+    lineage_assert(program.attribute_location("vertex_position") == VERTEX_POSITION_ATTRIBUTE_LOCATION);
+    lineage_assert(program.attribute_location("vertex_color") == VERTEX_COLOR_ATTRIBUTE_LOCATION);
+
+    return program;
   }
 
   /** TEMPORARY - Create the data buffer for the renderer. */
@@ -67,11 +85,19 @@ namespace
   }
 
   /** Creates the vertex array object for the renderer to use. */
-  vertex_array create_vertex_array(const shader_program& program)
+  vertex_array create_vertex_array()
   {
     vertex_array vao;
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_position", position_attribute_spec<vertex3x4>());
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_color", color_attribute_spec<vertex3x4>());
+
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_POSITION_ATTRIBUTE_LOCATION,
+                        position_attribute_spec<vertex3x4>());
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_COLOR_ATTRIBUTE_LOCATION,
+                        color_attribute_spec<vertex3x4>());
+
     return vao;
   }
 
@@ -105,14 +131,14 @@ default_render_manager::default_render_manager(opengl& opengl, const default_sta
     m_state_manager(state_manager),
     m_program(create_default_shader_program()),
     m_buffer(TEMP_create_buffer()),
-    m_vao(create_vertex_array(m_program))
+    m_vao(create_vertex_array())
 {
 }
 
 void default_render_manager::render(const render_args& args)
 {
+  // initialize the frame buffer for rendering
   glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
-
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -130,11 +156,11 @@ void default_render_manager::render(const render_args& args)
 
   // set view matrix
   auto vmat = view_matrix(m_state_manager);
-  glUniformMatrix4fv(m_program.uniform_location("matrix_view"), 1, GL_FALSE, glm::value_ptr(vmat));
+  glUniformMatrix4fv(VIEW_MATRIX_UNIFORM_LOCATION, 1, GL_FALSE, glm::value_ptr(vmat));
 
   // set projection matrix
   auto pmat = proj_matrix(m_state_manager, args);
-  glUniformMatrix4fv(m_program.uniform_location("matrix_proj"), 1, GL_FALSE, glm::value_ptr(pmat));
+  glUniformMatrix4fv(PROJ_MATRIX_UNIFORM_LOCATION, 1, GL_FALSE, glm::value_ptr(pmat));
 
   // draw vertices
   glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA));

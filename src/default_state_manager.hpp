@@ -108,6 +108,7 @@ namespace lineage
     float m_camera_clip_near;
     float m_camera_clip_far;
 
+    void update_camera_rotation(const lineage::state_args& args);
     void update_camera_fov(const lineage::state_args& args);
     bool input_active(lineage::input_type type);
 

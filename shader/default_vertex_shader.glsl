@@ -4,17 +4,18 @@
  */
 
 #version 330 core
+#extension GL_ARB_explicit_uniform_location : require
 
 /* -- Uniforms -- */
 
-uniform mat4 matrix_view;
-uniform mat4 matrix_proj;
+layout (location = 0) uniform mat4 view_matrix;
+layout (location = 1) uniform mat4 proj_matrix;
 
 /* -- Inputs -- */
 
-in vec3 vertex_position;
-in vec3 vertex_normal;
-in vec4 vertex_color;
+layout (location = 0) in vec3 vertex_position;
+layout (location = 1) in vec3 vertex_normal;
+layout (location = 2) in vec4 vertex_color;
 
 /* -- Outputs -- */
 
@@ -27,6 +28,6 @@ out VertexToFragmentInterface
 
 void main(void)
 {
-  gl_Position = matrix_proj * matrix_view * vec4(vertex_position, 1.0);
+  gl_Position = proj_matrix * view_matrix * vec4(vertex_position, 1.0);
   outblock.vertex_color = vertex_color;
 }

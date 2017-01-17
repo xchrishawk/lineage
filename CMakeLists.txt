@@ -43,6 +43,7 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/shader.cpp
   ${SOURCE_DIR}/shader_program.cpp
   ${SOURCE_DIR}/shader_source.cpp
+  ${SOURCE_DIR}/util.cpp
   ${SOURCE_DIR}/vertex_array.cpp
   ${SOURCE_DIR}/window.cpp)
 

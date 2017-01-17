@@ -48,8 +48,10 @@ set(MAIN_TARGET_SOURCES
 
 # Shader files
 set(MAIN_TARGET_SHADERS
-  ${SHADER_DIR}/prototype_vertex_shader.glsl
-  ${SHADER_DIR}/prototype_fragment_shader.glsl)
+  ${SHADER_DIR}/default_fragment_shader.glsl
+  ${SHADER_DIR}/default_vertex_shader.glsl
+  ${SHADER_DIR}/prototype_fragment_shader.glsl
+  ${SHADER_DIR}/prototype_vertex_shader.glsl)
 
 # Allow relative includes for source files
 list(APPEND MAIN_TARGET_INCLUDE_DIRECTORIES ${SOURCE_DIR})

@@ -8,7 +8,10 @@
 
 /* -- Includes -- */
 
+#include "buffer.hpp"
 #include "render_manager.hpp"
+#include "shader_program.hpp"
+#include "vertex_array.hpp"
 
 /* -- Types -- */
 
@@ -61,6 +64,9 @@ namespace lineage
 
     lineage::opengl& m_opengl;
     const lineage::default_state_manager& m_state_manager;
+    const lineage::shader_program m_program;
+    const lineage::immutable_buffer m_buffer;
+    lineage::vertex_array m_vao;
 
   };
 

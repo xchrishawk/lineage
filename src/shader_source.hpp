@@ -22,6 +22,8 @@ namespace lineage
   {
     prototype_vertex_shader,
     prototype_fragment_shader,
+    default_vertex_shader,
+    default_fragment_shader,
   };
 
 }

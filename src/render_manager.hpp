@@ -18,6 +18,8 @@ namespace lineage
   {
     double abs_t;		/**< Total elapsed time, in seconds. */
     double delta_t;		/**< Time since last loop, in seconds. */
+    int framebuffer_width;	/**< The width of the frame buffer, in pixels. */
+    int framebuffer_height;	/**< The height of the frame buffer, in pixels. */
   };
 
   /**

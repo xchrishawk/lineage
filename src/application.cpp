@@ -110,6 +110,7 @@ void application::do_render(double abs_t, double delta_t)
   render_args args;
   args.abs_t = abs_t;
   args.delta_t = delta_t;
+  m_window.framebuffer_size(&args.framebuffer_width, &args.framebuffer_height);
 
   m_render_manager.render(args);
   m_window.swap_buffers();

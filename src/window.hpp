@@ -147,6 +147,22 @@ namespace lineage
     }
 
     /**
+     * Gets the size of the window.
+     */
+    void window_size(int* width, int* height) const
+    {
+      glfwGetWindowSize(m_handle, width, height);
+    }
+
+    /**
+     * Gets the size of the window's frame buffer.
+     */
+    void framebuffer_size(int* width, int* height) const
+    {
+      glfwGetFramebufferSize(m_handle, width, height);
+    }
+
+    /**
      * Adds an observer to this window.
      */
     void add_observer(lineage::window_observer* observer) const

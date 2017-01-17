@@ -5,6 +5,11 @@
 
 #version 330 core
 
+/* -- Uniforms -- */
+
+uniform mat4 matrix_view;
+uniform mat4 matrix_proj;
+
 /* -- Inputs -- */
 
 in vec3 vertex_position;
@@ -22,6 +27,6 @@ out VertexToFragmentInterface
 
 void main(void)
 {
-  gl_Position = vec4(vertex_position, 1.0);
+  gl_Position = matrix_proj * matrix_view * vec4(vertex_position, 1.0);
   outblock.vertex_color = vertex_color;
 }

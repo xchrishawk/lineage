@@ -25,6 +25,9 @@ namespace lineage
   {
     invalid,
     application_exit,
+    camera_reset,
+    camera_fov_increase,
+    camera_fov_decrease,
     color_red_increase,
     color_red_decrease,
     color_green_increase,

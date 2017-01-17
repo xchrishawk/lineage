@@ -74,14 +74,17 @@ input_type input_manager::input_type_for_key_event(int key, int mods)
   case 0:
     switch (key)
     {
-    case GLFW_KEY_ESCAPE:	return input_type::application_exit;
-    case GLFW_KEY_U:		return input_type::color_red_increase;
-    case GLFW_KEY_J:		return input_type::color_red_decrease;
-    case GLFW_KEY_I:		return input_type::color_green_increase;
-    case GLFW_KEY_K:		return input_type::color_green_decrease;
-    case GLFW_KEY_O:		return input_type::color_blue_increase;
-    case GLFW_KEY_L:		return input_type::color_blue_decrease;
-    default:      		return input_type::invalid;
+    case GLFW_KEY_ESCAPE:		return input_type::application_exit;
+    case GLFW_KEY_X:			return input_type::camera_reset;
+    case GLFW_KEY_LEFT_BRACKET:		return input_type::camera_fov_decrease;
+    case GLFW_KEY_RIGHT_BRACKET:	return input_type::camera_fov_increase;
+    case GLFW_KEY_U:			return input_type::color_red_increase;
+    case GLFW_KEY_J:			return input_type::color_red_decrease;
+    case GLFW_KEY_I:			return input_type::color_green_increase;
+    case GLFW_KEY_K:			return input_type::color_green_decrease;
+    case GLFW_KEY_O:			return input_type::color_blue_increase;
+    case GLFW_KEY_L:			return input_type::color_blue_decrease;
+    default:      			return input_type::invalid;
     }
 
   default:
@@ -93,8 +96,8 @@ input_state input_manager::input_state_for_key_event(int action)
 {
   switch (action)
   {
-  case GLFW_PRESS:		return lineage::input_state::active;
-  case GLFW_RELEASE:		return lineage::input_state::inactive;
-  default:			return lineage::input_state::invalid;
+  case GLFW_PRESS:			return lineage::input_state::active;
+  case GLFW_RELEASE:			return lineage::input_state::inactive;
+  default:				return lineage::input_state::invalid;
   }
 }

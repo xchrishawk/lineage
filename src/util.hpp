@@ -9,6 +9,7 @@
 /* -- Includes -- */
 
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 /* -- Types -- */
@@ -76,12 +77,30 @@ namespace lineage
    * Clamps `value` to between `min` and `max`.
    */
   template <typename T>
-  void clamp(T& value, T min, T max)
+  constexpr void clamp(T& value, T min, T max)
   {
     if (value < min)
       value = min;
     else if (value > max)
       value = max;
+  }
+
+  /**
+   * Converts an angle in degrees to radians.
+   */
+  template <typename T>
+  constexpr T deg_to_rad(T deg)
+  {
+    return (deg * (M_PI / 180));
+  }
+
+  /**
+   * Converts an angle in radians to degrees.
+   */
+  template <typename T>
+  constexpr T rad_to_deg(T rad)
+  {
+    return (rad * (180 / M_PI));
   }
 
   /**

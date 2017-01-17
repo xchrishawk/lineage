@@ -8,6 +8,9 @@
 
 /* -- Includes -- */
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 #include "input_manager.hpp"
 #include "state_manager.hpp"
 
@@ -43,6 +46,50 @@ namespace lineage
     lineage::default_state_manager& operator =(const lineage::default_state_manager&) = delete;
     lineage::default_state_manager& operator =(lineage::default_state_manager&&) = delete;
 
+    /* -- Public Methods -- */
+
+  public:
+
+    /**
+     * The current camera position.
+     */
+    const glm::vec3& camera_position() const
+    {
+      return m_camera_position;
+    }
+
+    /**
+     * The current camera rotation.
+     */
+    const glm::quat& camera_rotation() const
+    {
+      return m_camera_rotation;
+    }
+
+    /**
+     * The current camera field of view, in radians.
+     */
+    float camera_fov() const
+    {
+      return m_camera_fov;
+    }
+
+    /**
+     * The current camera near clip distance.
+     */
+    float camera_clip_near() const
+    {
+      return m_camera_clip_near;
+    }
+
+    /**
+     * The current camera far clip distance.
+     */
+    float camera_clip_far() const
+    {
+      return m_camera_clip_far;
+    }
+
     /* -- `lineage::state_manager` Implementation -- */
 
   public:
@@ -55,6 +102,14 @@ namespace lineage
   private:
 
     const lineage::input_manager& m_input_manager;
+    glm::vec3 m_camera_position;
+    glm::quat m_camera_rotation;
+    float m_camera_fov;
+    float m_camera_clip_near;
+    float m_camera_clip_far;
+
+    void update_camera_fov(const lineage::state_args& args);
+    bool input_active(lineage::input_type type);
 
   };
 

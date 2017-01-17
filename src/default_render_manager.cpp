@@ -6,6 +6,12 @@
 
 /* -- Includes -- */
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "api.hpp"
 #include "buffer.hpp"
 #include "default_render_manager.hpp"
@@ -69,6 +75,27 @@ namespace
     return vao;
   }
 
+  /** Calculates a view matrix based on the specified values. */
+  glm::mat4 view_matrix(const default_state_manager& state_manager)
+  {
+    auto matrix =
+      glm::translate(state_manager.camera_position()) *
+      glm::mat4_cast(state_manager.camera_rotation());
+    return glm::inverse(matrix);
+  }
+
+  /** Calculates a projection matrix based on the specified values. */
+  glm::mat4 proj_matrix(const default_state_manager& state_manager, const render_args& args)
+  {
+    float aspect_ratio =
+      static_cast<float>(args.framebuffer_width) /
+      static_cast<float>(args.framebuffer_height);
+    return glm::perspective(state_manager.camera_fov(),
+                            aspect_ratio,
+                            state_manager.camera_clip_near(),
+                            state_manager.camera_clip_far());
+  }
+
 }
 
 /* -- Procedures -- */
@@ -84,6 +111,8 @@ default_render_manager::default_render_manager(opengl& opengl, const default_sta
 
 void default_render_manager::render(const render_args& args)
 {
+  glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
+
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -98,6 +127,14 @@ void default_render_manager::render(const render_args& args)
   // bind vertex buffer
   m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex3x4));
   defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
+
+  // set view matrix
+  auto vmat = view_matrix(m_state_manager);
+  glUniformMatrix4fv(m_program.uniform_location("matrix_view"), 1, GL_FALSE, glm::value_ptr(vmat));
+
+  // set projection matrix
+  auto pmat = proj_matrix(m_state_manager, args);
+  glUniformMatrix4fv(m_program.uniform_location("matrix_proj"), 1, GL_FALSE, glm::value_ptr(pmat));
 
   // draw vertices
   glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA));

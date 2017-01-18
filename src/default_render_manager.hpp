@@ -8,6 +8,8 @@
 
 /* -- Includes -- */
 
+#include <glm/glm.hpp>
+
 #include "buffer.hpp"
 #include "render_manager.hpp"
 #include "shader_program.hpp"
@@ -67,6 +69,11 @@ namespace lineage
     const lineage::shader_program m_program;
     const lineage::immutable_buffer m_buffer;
     lineage::vertex_array m_vao;
+
+    void render_init(const lineage::render_args& args) const;
+
+    glm::mat4 view_matrix(const lineage::render_args& args) const;
+    glm::mat4 proj_matrix(const lineage::render_args& args) const;
 
   };
 

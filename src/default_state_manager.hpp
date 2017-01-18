@@ -67,7 +67,7 @@ namespace lineage
     }
 
     /**
-     * The current camera field of view, in radians.
+     * The current camera field of view in the Y axis, in radians.
      */
     float camera_fov() const
     {
@@ -108,6 +108,7 @@ namespace lineage
     float m_camera_clip_near;
     float m_camera_clip_far;
 
+    void update_camera_position(const lineage::state_args& args);
     void update_camera_rotation(const lineage::state_args& args);
     void update_camera_fov(const lineage::state_args& args);
     bool input_active(lineage::input_type type);

@@ -59,12 +59,21 @@ void input_manager::remove_observer(input_observer& observer) const
 
 void input_manager::window_key_event(int key, int action, int mods)
 {
-  const auto type = input_type_for_key_event(key, mods);
   const auto state = input_state_for_key_event(action);
-  if (type == input_type::invalid || state == lineage::input_state::invalid)
-    return;
-
-  set_input_state(type, state);
+  if (state == lineage::input_state::active)
+  {
+    // activate this input only
+    set_input_state(input_type_for_key_event(key, mods), state);
+  }
+  else if (state == lineage::input_state::inactive)
+  {
+    // deactivate every input which shares this "primary" key
+    set_input_state(input_type_for_key_event(key, 0), state);
+    set_input_state(input_type_for_key_event(key, GLFW_MOD_SHIFT), state);
+    set_input_state(input_type_for_key_event(key, GLFW_MOD_CONTROL), state);
+    set_input_state(input_type_for_key_event(key, GLFW_MOD_ALT), state);
+    set_input_state(input_type_for_key_event(key, GLFW_MOD_SUPER), state);
+  }
 }
 
 input_type input_manager::input_type_for_key_event(int key, int mods)
@@ -76,6 +85,12 @@ input_type input_manager::input_type_for_key_event(int key, int mods)
     {
     case GLFW_KEY_ESCAPE:		return input_type::application_exit;
     case GLFW_KEY_X:			return input_type::camera_reset;
+    case GLFW_KEY_D:			return input_type::camera_translation_right;
+    case GLFW_KEY_A:			return input_type::camera_translation_left;
+    case GLFW_KEY_R:			return input_type::camera_translation_up;
+    case GLFW_KEY_F:			return input_type::camera_translation_down;
+    case GLFW_KEY_W:			return input_type::camera_translation_forward;
+    case GLFW_KEY_S:			return input_type::camera_translation_backward;
     case GLFW_KEY_LEFT_BRACKET:		return input_type::camera_fov_decrease;
     case GLFW_KEY_RIGHT_BRACKET:	return input_type::camera_fov_increase;
     case GLFW_KEY_U:			return input_type::color_red_increase;
@@ -92,10 +107,10 @@ input_type input_manager::input_type_for_key_event(int key, int mods)
     {
     case GLFW_KEY_W:			return input_type::camera_rotation_pitch_down;
     case GLFW_KEY_S:			return input_type::camera_rotation_pitch_up;
-    case GLFW_KEY_E:			return input_type::camera_rotation_roll_right;
-    case GLFW_KEY_Q:			return input_type::camera_rotation_roll_left;
     case GLFW_KEY_D:			return input_type::camera_rotation_yaw_right;
     case GLFW_KEY_A:			return input_type::camera_rotation_yaw_left;
+    case GLFW_KEY_E:			return input_type::camera_rotation_roll_right;
+    case GLFW_KEY_Q:			return input_type::camera_rotation_roll_left;
     }
 
   default:

@@ -25,11 +25,12 @@ using namespace lineage;
 namespace
 {
   const glm::vec3 DEFAULT_CAMERA_POSITION { 0.0, 0.0, 5.0 };
+  const float RATE_CAMERA_POSITION { 2.0f };
 
   const glm::quat DEFAULT_CAMERA_ROTATION { };
-  const float RATE_CAMERA_ROTATION { deg_to_rad(45.0f) };
+  const float RATE_CAMERA_ROTATION { deg_to_rad(90.0f) };
 
-  const float DEFAULT_CAMERA_CLIP_NEAR { 0.5f };
+  const float DEFAULT_CAMERA_CLIP_NEAR { 0.0f };
   const float DEFAULT_CAMERA_CLIP_FAR { 100.0f };
 
   const float DEFAULT_CAMERA_FOV { deg_to_rad(45.0f) };
@@ -52,6 +53,7 @@ default_state_manager::default_state_manager(const input_manager& input_manager)
 
 void default_state_manager::run(const state_args& args)
 {
+  update_camera_position(args);
   update_camera_rotation(args);
   update_camera_fov(args);
 }
@@ -59,6 +61,39 @@ void default_state_manager::run(const state_args& args)
 double default_state_manager::target_delta_t() const
 {
   return (1.0 / 60.0); // 60 HZ
+}
+
+void default_state_manager::update_camera_position(const state_args& args)
+{
+  if (input_active(input_type::camera_reset))
+  {
+    m_camera_position = DEFAULT_CAMERA_POSITION;
+    return;
+  }
+
+  const float delta = RATE_CAMERA_POSITION * args.delta_t;
+
+  glm::vec3 translation(0.0f);
+
+  // right/left
+  if (input_active(input_type::camera_translation_right))
+    translation.x += delta;
+  if (input_active(input_type::camera_translation_left))
+    translation.x -= delta;
+
+  // up/down
+  if (input_active(input_type::camera_translation_up))
+    translation.y += delta;
+  if (input_active(input_type::camera_translation_down))
+    translation.y -= delta;
+
+  // forward/backward
+  if (input_active(input_type::camera_translation_forward))
+    translation.z -= delta;
+  if (input_active(input_type::camera_translation_backward))
+    translation.z += delta;
+
+  m_camera_position += glm::mat3_cast(m_camera_rotation) * translation;
 }
 
 void default_state_manager::update_camera_rotation(const state_args& args)

@@ -101,27 +101,6 @@ namespace
     return vao;
   }
 
-  /** Calculates a view matrix based on the specified values. */
-  glm::mat4 view_matrix(const default_state_manager& state_manager)
-  {
-    auto matrix =
-      glm::translate(state_manager.camera_position()) *
-      glm::mat4_cast(state_manager.camera_rotation());
-    return glm::inverse(matrix);
-  }
-
-  /** Calculates a projection matrix based on the specified values. */
-  glm::mat4 proj_matrix(const default_state_manager& state_manager, const render_args& args)
-  {
-    float aspect_ratio =
-      static_cast<float>(args.framebuffer_width) /
-      static_cast<float>(args.framebuffer_height);
-    return glm::perspective(state_manager.camera_fov(),
-                            aspect_ratio,
-                            state_manager.camera_clip_near(),
-                            state_manager.camera_clip_far());
-  }
-
 }
 
 /* -- Procedures -- */
@@ -137,12 +116,7 @@ default_render_manager::default_render_manager(opengl& opengl, const default_sta
 
 void default_render_manager::render(const render_args& args)
 {
-  // initialize the frame buffer for rendering
-  glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-    // activate program
+  // activate program
   m_opengl.push_program(m_program);
   defer pop_program([&] { m_opengl.pop_program(); });
 
@@ -154,13 +128,20 @@ void default_render_manager::render(const render_args& args)
   m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex3x4));
   defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
 
-  // set view matrix
-  auto vmat = view_matrix(m_state_manager);
-  glUniformMatrix4fv(VIEW_MATRIX_UNIFORM_LOCATION, 1, GL_FALSE, glm::value_ptr(vmat));
+  // set view matrix uniform
+  glUniformMatrix4fv(VIEW_MATRIX_UNIFORM_LOCATION,		// location
+                     1,						// count
+                     GL_FALSE,					// transpose
+                     glm::value_ptr(view_matrix(args)));	// value
 
-  // set projection matrix
-  auto pmat = proj_matrix(m_state_manager, args);
-  glUniformMatrix4fv(PROJ_MATRIX_UNIFORM_LOCATION, 1, GL_FALSE, glm::value_ptr(pmat));
+  // set projection matrix uniform
+  glUniformMatrix4fv(PROJ_MATRIX_UNIFORM_LOCATION,		// location
+                     1,						// count
+                     GL_FALSE,					// transpose
+                     glm::value_ptr(proj_matrix(args)));	// value
+
+  // initialize framebuffer
+  render_init(args);
 
   // draw vertices
   glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA));
@@ -169,4 +150,33 @@ void default_render_manager::render(const render_args& args)
 double default_render_manager::target_delta_t() const
 {
   return (1.0 / 60.0); // 60 HZ
+}
+
+void default_render_manager::render_init(const render_args& args) const
+{
+  // set viewport
+  glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
+
+  // clear buffer
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+glm::mat4 default_render_manager::view_matrix(const render_args& args) const
+{
+    auto matrix =
+      glm::translate(m_state_manager.camera_position()) *
+      glm::mat4_cast(m_state_manager.camera_rotation());
+    return glm::inverse(matrix);
+}
+
+glm::mat4 default_render_manager::proj_matrix(const render_args& args) const
+{
+    float aspect_ratio =
+      static_cast<float>(args.framebuffer_width) /
+      static_cast<float>(args.framebuffer_height);
+    return glm::perspective(m_state_manager.camera_fov(),
+                            aspect_ratio,
+                            m_state_manager.camera_clip_near(),
+                            m_state_manager.camera_clip_far());
 }

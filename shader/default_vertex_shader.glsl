@@ -21,6 +21,7 @@ layout (location = 2) in vec4 vertex_color;
 
 out VertexToFragmentInterface
 {
+  vec3 vertex_normal;
   vec4 vertex_color;
 } outblock;
 
@@ -28,6 +29,10 @@ out VertexToFragmentInterface
 
 void main(void)
 {
+  // set vertex position
   gl_Position = proj_matrix * view_matrix * vec4(vertex_position, 1.0);
+
+  // set outputs
+  outblock.vertex_normal = vertex_normal;
   outblock.vertex_color = vertex_color;
 }

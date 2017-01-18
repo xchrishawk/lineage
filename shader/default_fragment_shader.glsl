@@ -9,6 +9,7 @@
 
 in VertexToFragmentInterface
 {
+  vec3 vertex_normal;
   vec4 vertex_color;
 } inblock;
 

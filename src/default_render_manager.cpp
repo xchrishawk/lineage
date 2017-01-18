@@ -29,6 +29,10 @@
 
 using namespace lineage;
 
+/* -- Types -- */
+
+using vertex_type = vertex334;
+
 /* -- Constants -- */
 
 namespace
@@ -39,19 +43,19 @@ namespace
 
   // Attribute locations
   const GLuint VERTEX_POSITION_ATTRIBUTE_LOCATION = 0;
-  // const GLuint VERTEX_NORMAL_ATTRIBUTE_LOCATION = 1;
+  const GLuint VERTEX_NORMAL_ATTRIBUTE_LOCATION = 1;
   const GLuint VERTEX_COLOR_ATTRIBUTE_LOCATION = 2;
 
   // Misc
   const GLuint BINDING_INDEX = 0;
-  const vertex3x4 VERTEX_DATA[] =
+  const vertex_type VERTEX_DATA[] =
   {
-    { { 0.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-    { { 0.5f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-    { { 0.0f, 0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-    { { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-    { { -0.5f, 0.0f, 0.0f }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-    { { 0.0f, -0.5f, 0.0f }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+    { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+    { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+    { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+    { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+    { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
   };
 }
 
@@ -69,12 +73,6 @@ namespace
       = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
     auto program
       = create_shader_program({ &vertex_shader, &fragment_shader });
-
-    lineage_assert(program.uniform_location("view_matrix") == VIEW_MATRIX_UNIFORM_LOCATION);
-    lineage_assert(program.uniform_location("proj_matrix") == PROJ_MATRIX_UNIFORM_LOCATION);
-    lineage_assert(program.attribute_location("vertex_position") == VERTEX_POSITION_ATTRIBUTE_LOCATION);
-    lineage_assert(program.attribute_location("vertex_color") == VERTEX_COLOR_ATTRIBUTE_LOCATION);
-
     return program;
   }
 
@@ -92,11 +90,15 @@ namespace
     configure_attribute(vao,
                         BINDING_INDEX,
                         VERTEX_POSITION_ATTRIBUTE_LOCATION,
-                        position_attribute_spec<vertex3x4>());
+                        position_attribute_spec<vertex_type>());
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_NORMAL_ATTRIBUTE_LOCATION,
+                        normal_attribute_spec<vertex_type>());
     configure_attribute(vao,
                         BINDING_INDEX,
                         VERTEX_COLOR_ATTRIBUTE_LOCATION,
-                        color_attribute_spec<vertex3x4>());
+                        color_attribute_spec<vertex_type>());
 
     return vao;
   }
@@ -125,7 +127,7 @@ void default_render_manager::render(const render_args& args)
   defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
 
   // bind vertex buffer
-  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex3x4));
+  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex_type));
   defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
 
   // set view matrix uniform

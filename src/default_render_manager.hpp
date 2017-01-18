@@ -11,8 +11,10 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
+#include "mesh.hpp"
 #include "render_manager.hpp"
 #include "shader_program.hpp"
+#include "vertex.hpp"
 #include "vertex_array.hpp"
 
 /* -- Types -- */
@@ -28,6 +30,13 @@ namespace lineage
    */
   class default_render_manager final : public lineage::render_manager
   {
+
+    /* -- Types -- */
+
+  private:
+
+    /** The type of vertex the renderer is using. */
+    using vertex_type = lineage::vertex334;
 
     /* -- Lifecycle -- */
 
@@ -67,12 +76,13 @@ namespace lineage
     lineage::opengl& m_opengl;
     const lineage::default_state_manager& m_state_manager;
     const lineage::shader_program m_program;
-    const lineage::immutable_buffer m_buffer;
+    const lineage::mesh<vertex_type> m_mesh;
     lineage::vertex_array m_vao;
 
     void render_init(const lineage::render_args& args) const;
 
-    glm::mat4 view_matrix(const lineage::render_args& args) const;
+    glm::mat4 model_matrix(const lineage::mesh<vertex_type>& mesh) const;
+    glm::mat4 view_matrix() const;
     glm::mat4 proj_matrix(const lineage::render_args& args) const;
 
   };

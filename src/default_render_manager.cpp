@@ -34,9 +34,10 @@ using namespace lineage;
 namespace
 {
   // Uniform locations
-  const GLuint MODEL_MATRIX_UNIFORM_LOCATION = 0;
-  const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 1;
-  const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 2;
+  const GLuint MESH_MATRIX_UNIFORM_LOCATION = 0;
+  const GLuint MODEL_MATRIX_UNIFORM_LOCATION = 1;
+  const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 2;
+  const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 3;
 
   // Attribute locations
   const GLuint VERTEX_POSITION_ATTRIBUTE_LOCATION = 0;
@@ -52,56 +53,31 @@ namespace
 namespace
 {
 
-  /** Creates the shader program to use. */
-  shader_program create_default_shader_program()
+  /** TEMPORARY - create object to render. */
+  object<vertex334> TEMP_create_object()
   {
-    auto vertex_shader
-      = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
-    auto fragment_shader
-      = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
-    auto program
-      = create_shader_program({ &vertex_shader, &fragment_shader });
-    return program;
-  }
+    std::vector<mesh<vertex334>> meshes;
 
-  /** TEMPORARY - create mesh to render. */
-  mesh<vertex334> TEMP_create_mesh()
-  {
-    static const std::vector<vertex334> VERTICES =
+    static const std::vector<vertex334> MESH_1_VERTICES =
     {
       { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
       { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
       { { 0.5f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-      { { 0.0f, 0.5f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-      { { 0.5f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
     };
-    return mesh<vertex334>(glm::vec3(),
-                           glm::quat(),
-                           glm::vec3(100.0f, 0.5f, 1.0f),
-                           VERTICES);
-  }
+    meshes.emplace_back(MESH_1_VERTICES);
 
-  /** Creates the vertex array object for the renderer to use. */
-  template <typename TVertex>
-  vertex_array create_vertex_array()
-  {
-    vertex_array vao;
+    static const std::vector<vertex334> MESH_2_VERTICES =
+    {
+      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+    };
+    meshes.emplace_back(MESH_2_VERTICES);
 
-    configure_attribute(vao,
-                        BINDING_INDEX,
-                        VERTEX_POSITION_ATTRIBUTE_LOCATION,
-                        position_attribute_spec<TVertex>());
-    configure_attribute(vao,
-                        BINDING_INDEX,
-                        VERTEX_NORMAL_ATTRIBUTE_LOCATION,
-                        normal_attribute_spec<TVertex>());
-    configure_attribute(vao,
-                        BINDING_INDEX,
-                        VERTEX_COLOR_ATTRIBUTE_LOCATION,
-                        color_attribute_spec<TVertex>());
-
-    return vao;
+    return object<vertex334>(glm::vec3(-2.0f, 0.0f, 0.0f),
+                             glm::quat(),
+                             glm::vec3(1.0f),
+                             std::move(meshes));
   }
 
 }
@@ -111,8 +87,8 @@ namespace
 default_render_manager::default_render_manager(opengl& opengl, const default_state_manager& state_manager)
   : m_opengl(opengl),
     m_state_manager(state_manager),
-    m_program(create_default_shader_program()),
-    m_mesh(TEMP_create_mesh()),
+    m_program(create_shader_program()),
+    m_object(TEMP_create_object()),
     m_vao(create_vertex_array<vertex_type>())
 {
 }
@@ -127,33 +103,15 @@ void default_render_manager::render(const render_args& args)
   m_opengl.push_vertex_array(m_vao);
   defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
 
-  // bind vertex buffer
-  m_vao.bind_buffer(BINDING_INDEX, m_mesh.buffer(), 0, sizeof(vertex_type));
-  defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
-
-  // set model matrix uniform
-  glUniformMatrix4fv(MODEL_MATRIX_UNIFORM_LOCATION,		// location,
-                     1,						// count
-                     GL_FALSE,					// transpose
-                     glm::value_ptr(model_matrix(m_mesh)));	// value
-
-  // set view matrix uniform
-  glUniformMatrix4fv(VIEW_MATRIX_UNIFORM_LOCATION,		// location
-                     1,						// count
-                     GL_FALSE,					// transpose
-                     glm::value_ptr(view_matrix()));		// value
-
-  // set projection matrix uniform
-  glUniformMatrix4fv(PROJ_MATRIX_UNIFORM_LOCATION,		// location
-                     1,						// count
-                     GL_FALSE,					// transpose
-                     glm::value_ptr(proj_matrix(args)));	// value
+  // set common uniforms
+  m_opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, view_matrix());
+  m_opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, proj_matrix(args));
 
   // initialize framebuffer
   render_init(args);
 
-  // draw vertices
-  glDrawArrays(GL_TRIANGLES, 0, m_mesh.vertex_count());
+  // draw each object
+  render_object(m_object);
 }
 
 double default_render_manager::target_delta_t() const
@@ -161,7 +119,7 @@ double default_render_manager::target_delta_t() const
   return (1.0 / 60.0); // 60 HZ
 }
 
-void default_render_manager::render_init(const render_args& args) const
+void default_render_manager::render_init(const render_args& args)
 {
   // set viewport
   glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
@@ -171,12 +129,36 @@ void default_render_manager::render_init(const render_args& args) const
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-glm::mat4 default_render_manager::model_matrix(const mesh<vertex_type>& mesh) const
+void default_render_manager::render_object(const object<vertex_type>& object)
+{
+  // set model matrix uniform
+  m_opengl.set_uniform(MODEL_MATRIX_UNIFORM_LOCATION, model_matrix(object));
+
+  // render each mesh
+  for (const auto& mesh : object.meshes())
+    render_mesh(mesh);
+}
+
+void default_render_manager::render_mesh(const mesh<vertex_type>& mesh)
+{
+  // set mesh matrix uniform
+  m_opengl.set_uniform(MESH_MATRIX_UNIFORM_LOCATION, model_matrix(mesh));
+
+  // bind the buffer for this mesh
+  m_vao.bind_buffer(BINDING_INDEX, mesh.buffer(), 0, sizeof(vertex_type));
+  defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
+
+  // draw the mesh
+  glDrawArrays(GL_TRIANGLES, 0, mesh.vertex_count());
+}
+
+template <typename TObject>
+glm::mat4 default_render_manager::model_matrix(const TObject& obj) const
 {
   auto matrix =
-    glm::translate(mesh.position()) *
-    glm::scale(mesh.scale()) *
-    glm::mat4_cast(mesh.rotation());
+    glm::translate(obj.position()) *
+    glm::scale(obj.scale()) *
+    glm::mat4_cast(obj.rotation());
   return matrix;
 }
 
@@ -197,4 +179,35 @@ glm::mat4 default_render_manager::proj_matrix(const render_args& args) const
                             aspect_ratio,
                             m_state_manager.camera_clip_near(),
                             m_state_manager.camera_clip_far());
+}
+
+shader_program default_render_manager::create_shader_program()
+{
+  auto vertex_shader
+    = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
+  auto fragment_shader
+    = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
+
+  return lineage::create_shader_program({ &vertex_shader, &fragment_shader });
+}
+
+template <typename TVertex>
+vertex_array default_render_manager::create_vertex_array()
+{
+    vertex_array vao;
+
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_POSITION_ATTRIBUTE_LOCATION,
+                        position_attribute_spec<TVertex>());
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_NORMAL_ATTRIBUTE_LOCATION,
+                        normal_attribute_spec<TVertex>());
+    configure_attribute(vao,
+                        BINDING_INDEX,
+                        VERTEX_COLOR_ATTRIBUTE_LOCATION,
+                        color_attribute_spec<TVertex>());
+
+    return vao;
 }

@@ -16,6 +16,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "buffer.hpp"
+#include "util.hpp"
 #include "vertex.hpp"
 
 /* -- Types -- */
@@ -48,10 +49,7 @@ namespace lineage
      * The position, rotation, and scale will be set to default values.
      */
     mesh(const std::vector<TVertex>& vertices)
-      : mesh(glm::vec3(),
-             glm::quat(),
-             glm::vec3(1.0f),
-             vertices)
+      : mesh(POSITION_ZERO, ROTATION_ZERO, SCALE_NONE, vertices)
     { }
 
     /**
@@ -71,13 +69,26 @@ namespace lineage
     /**
      * Move constructor.
      */
-    mesh(lineage::mesh<TVertex>&& other)
+    mesh(lineage::mesh<TVertex>&& other) noexcept
       : m_position(other.m_position),
         m_rotation(other.m_rotation),
         m_scale(other.m_scale),
         m_vertex_count(other.m_vertex_count),
         m_buffer(std::move(other.m_buffer))
     { }
+
+    /**
+     * Move assignment operator.
+     */
+    lineage::mesh<TVertex>& operator =(lineage::mesh<TVertex>&& other)
+    {
+      m_position = other.m_position;
+      m_rotation = other.m_rotation;
+      m_scale = other.m_scale;
+      m_vertex_count = other.m_vertex_count;
+      m_buffer = std::move(other.m_buffer);
+      return *this;
+    }
 
     /**
      * Destructor.
@@ -88,7 +99,6 @@ namespace lineage
 
     mesh(const lineage::mesh<TVertex>&) = delete;
     lineage::mesh<TVertex>& operator =(const lineage::mesh<TVertex>&) = delete;
-    lineage::mesh<TVertex>& operator =(lineage::mesh<TVertex>&&) = delete;
 
     /* -- Public Methods -- */
 
@@ -138,10 +148,10 @@ namespace lineage
 
   private:
 
-    const glm::vec3 m_position;
-    const glm::quat m_rotation;
-    const glm::vec3 m_scale;
-    const size_t m_vertex_count;
+    glm::vec3 m_position;
+    glm::quat m_rotation;
+    glm::vec3 m_scale;
+    size_t m_vertex_count;
     lineage::immutable_buffer m_buffer;
 
   };

@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
-#include "mesh.hpp"
+#include "object.hpp"
 #include "render_manager.hpp"
 #include "shader_program.hpp"
 #include "vertex.hpp"
@@ -53,6 +53,9 @@ namespace lineage
      */
     default_render_manager(lineage::opengl& opengl, const lineage::default_state_manager& state_manager);
 
+    /**
+     * Destructor.
+     */
     virtual ~default_render_manager() = default;
 
   private:
@@ -71,19 +74,24 @@ namespace lineage
 
     /* -- Implementation -- */
 
-  public:
+  private:
 
     lineage::opengl& m_opengl;
     const lineage::default_state_manager& m_state_manager;
     const lineage::shader_program m_program;
-    const lineage::mesh<vertex_type> m_mesh;
+    const lineage::object<vertex_type> m_object;
     lineage::vertex_array m_vao;
 
-    void render_init(const lineage::render_args& args) const;
+    void render_init(const lineage::render_args& args);
+    void render_object(const lineage::object<vertex_type>& object);
+    void render_mesh(const lineage::mesh<vertex_type>& mesh);
 
-    glm::mat4 model_matrix(const lineage::mesh<vertex_type>& mesh) const;
+    template <typename TObject> glm::mat4 model_matrix(const TObject& obj) const;
     glm::mat4 view_matrix() const;
     glm::mat4 proj_matrix(const lineage::render_args& args) const;
+
+    static lineage::shader_program create_shader_program();
+    template <typename TVertex> static lineage::vertex_array create_vertex_array();
 
   };
 

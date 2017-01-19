@@ -58,6 +58,16 @@ namespace lineage
     }
 
     /**
+     * Move assignment operator.
+     */
+    lineage::buffer& operator =(lineage::buffer&& other) noexcept
+    {
+      m_handle = other.m_handle;
+      other.m_handle = invalid_handle;
+      return *this;
+    }
+
+    /**
      * Destructor.
      */
     virtual ~buffer()
@@ -71,7 +81,6 @@ namespace lineage
 
     buffer(const lineage::buffer&) = delete;
     lineage::buffer& operator =(const lineage::buffer&) = delete;
-    lineage::buffer& operator =(lineage::buffer&&) = delete;
 
     /* -- Public Methods -- */
 

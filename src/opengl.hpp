@@ -11,6 +11,9 @@
 #include <string>
 #include <vector>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "api.hpp"
 
 /* -- Types -- */
@@ -24,7 +27,7 @@ namespace lineage
   /**
    * Class representing an interface to the OpenGL library.
    */
-  class opengl
+  class opengl final
   {
 
     /* -- Lifecycle -- */
@@ -39,6 +42,9 @@ namespace lineage
      */
     opengl();
 
+    /**
+     * Destructor.
+     */
     ~opengl();
 
   private:
@@ -55,27 +61,53 @@ namespace lineage
     /**
      * Returns the OpenGL `GL_VERSION` string.
      */
-    std::string api_version() const;
+    std::string api_version() const
+    {
+      return get_string(GL_VERSION);
+    }
 
     /**
      * Returns the OpenGL `GL_SHADING_LANGUAGE_VERSION` string.
      */
-    std::string shading_language_version() const;
+    std::string shading_language_version() const
+    {
+      return get_string(GL_SHADING_LANGUAGE_VERSION);
+    }
 
     /**
      * Returns the OpenGL `GL_RENDERER` string.
      */
-    std::string renderer() const;
+    std::string renderer() const
+    {
+      return get_string(GL_RENDERER);
+    }
 
     /**
      * Returns the OpenGL `GL_VERSION` string.
      */
-    std::string vendor() const;
+    std::string vendor() const
+    {
+      return get_string(GL_VENDOR);
+    }
 
     /**
      * Returns `true` if the ARB extension with the specified name is supported.
      */
-    bool is_supported(const std::string& extension) const;
+    bool is_supported(const std::string& extension) const
+    {
+      return (glewIsSupported(extension.c_str()) == GL_TRUE);
+    }
+
+    /**
+     * Sets the value of a 4x4 matrix uniform.
+     */
+    void set_uniform(GLuint location, const glm::mat4& matrix)
+    {
+      glUniformMatrix4fv(location,			// location
+                         1,				// count
+                         GL_FALSE,			// transpose
+                         glm::value_ptr(matrix));	// value
+    }
 
     /**
      * Pushes a shader program onto the stack, making it active.
@@ -107,6 +139,8 @@ namespace lineage
 
     std::vector<GLuint> m_programs;
     std::vector<GLuint> m_vertex_arrays;
+
+    static std::string get_string(GLenum name);
 
   };
 

@@ -25,21 +25,6 @@ using namespace lineage;
 
 opengl* opengl::s_instance = nullptr;
 
-/* -- Private Procedures -- */
-
-namespace
-{
-
-  /** Gets the OpenGL string with the specified name. */
-  std::string get_string(GLenum name)
-  {
-    const GLubyte* ustr = glGetString(name);
-    const char* cstr = reinterpret_cast<const char*>(ustr);
-    return std::string(cstr);
-  }
-
-}
-
 /* -- Procedures -- */
 
 opengl::opengl()
@@ -84,31 +69,6 @@ opengl::~opengl()
   lineage_log_status("OpenGL terminated.");
 }
 
-std::string opengl::api_version() const
-{
-  return get_string(GL_VERSION);
-}
-
-std::string opengl::shading_language_version() const
-{
-  return get_string(GL_SHADING_LANGUAGE_VERSION);
-}
-
-std::string opengl::renderer() const
-{
-  return get_string(GL_RENDERER);
-}
-
-std::string opengl::vendor() const
-{
-  return get_string(GL_VENDOR);
-}
-
-bool opengl::is_supported(const std::string& name) const
-{
-  return (glewIsSupported(name.c_str()) == GL_TRUE);
-}
-
 void opengl::push_program(const shader_program& program)
 {
   m_programs.push_back(program.m_handle);
@@ -141,4 +101,11 @@ void opengl::pop_vertex_array()
   }
   m_vertex_arrays.pop_back();
   glBindVertexArray(m_vertex_arrays.empty() ? 0 : m_vertex_arrays.back());
+}
+
+std::string opengl::get_string(GLenum name)
+{
+  const GLubyte* ustr = glGetString(name);
+  const char* cstr = reinterpret_cast<const char*>(ustr);
+  return std::string(cstr);
 }

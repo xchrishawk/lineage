@@ -11,7 +11,6 @@
 #include <glm/glm.hpp>
 
 #include "buffer.hpp"
-#include "object.hpp"
 #include "render_manager.hpp"
 #include "shader_program.hpp"
 #include "vertex.hpp"
@@ -79,14 +78,10 @@ namespace lineage
     lineage::opengl& m_opengl;
     const lineage::default_state_manager& m_state_manager;
     const lineage::shader_program m_program;
-    const lineage::object<vertex_type> m_object;
     lineage::vertex_array m_vao;
 
     void render_init(const lineage::render_args& args);
-    void render_object(const lineage::object<vertex_type>& object);
-    void render_mesh(const lineage::mesh<vertex_type>& mesh);
 
-    template <typename TObject> glm::mat4 model_matrix(const TObject& obj) const;
     glm::mat4 view_matrix() const;
     glm::mat4 proj_matrix(const lineage::render_args& args) const;
 

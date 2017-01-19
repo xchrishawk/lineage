@@ -48,47 +48,12 @@ namespace
   const GLuint BINDING_INDEX = 0;
 }
 
-/* -- Private Procedures -- */
-
-namespace
-{
-
-  /** TEMPORARY - create object to render. */
-  object<vertex334> TEMP_create_object()
-  {
-    std::vector<mesh<vertex334>> meshes;
-
-    static const std::vector<vertex334> MESH_1_VERTICES =
-    {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-      { { 0.5f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-    };
-    meshes.emplace_back(MESH_1_VERTICES);
-
-    static const std::vector<vertex334> MESH_2_VERTICES =
-    {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
-    };
-    meshes.emplace_back(MESH_2_VERTICES);
-
-    return object<vertex334>(glm::vec3(-2.0f, 0.0f, 0.0f),
-                             glm::quat(),
-                             glm::vec3(1.0f),
-                             std::move(meshes));
-  }
-
-}
-
 /* -- Procedures -- */
 
 default_render_manager::default_render_manager(opengl& opengl, const default_state_manager& state_manager)
   : m_opengl(opengl),
     m_state_manager(state_manager),
     m_program(create_shader_program()),
-    m_object(TEMP_create_object()),
     m_vao(create_vertex_array<vertex_type>())
 {
 }
@@ -109,9 +74,6 @@ void default_render_manager::render(const render_args& args)
 
   // initialize framebuffer
   render_init(args);
-
-  // draw each object
-  render_object(m_object);
 }
 
 double default_render_manager::target_delta_t() const
@@ -127,39 +89,6 @@ void default_render_manager::render_init(const render_args& args)
   // clear buffer
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void default_render_manager::render_object(const object<vertex_type>& object)
-{
-  // set model matrix uniform
-  m_opengl.set_uniform(MODEL_MATRIX_UNIFORM_LOCATION, model_matrix(object));
-
-  // render each mesh
-  for (const auto& mesh : object.meshes())
-    render_mesh(mesh);
-}
-
-void default_render_manager::render_mesh(const mesh<vertex_type>& mesh)
-{
-  // set mesh matrix uniform
-  m_opengl.set_uniform(MESH_MATRIX_UNIFORM_LOCATION, model_matrix(mesh));
-
-  // bind the buffer for this mesh
-  m_vao.bind_buffer(BINDING_INDEX, mesh.buffer(), 0, sizeof(vertex_type));
-  defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
-
-  // draw the mesh
-  glDrawArrays(GL_TRIANGLES, 0, mesh.vertex_count());
-}
-
-template <typename TObject>
-glm::mat4 default_render_manager::model_matrix(const TObject& obj) const
-{
-  auto matrix =
-    glm::translate(obj.position()) *
-    glm::scale(obj.scale()) *
-    glm::mat4_cast(obj.rotation());
-  return matrix;
 }
 
 glm::mat4 default_render_manager::view_matrix() const

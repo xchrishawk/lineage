@@ -8,13 +8,8 @@
 
 /* -- Includes -- */
 
-#include <glm/glm.hpp>
-
-#include "buffer.hpp"
+#include <memory>
 #include "render_manager.hpp"
-#include "shader_program.hpp"
-#include "vertex.hpp"
-#include "vertex_array.hpp"
 
 /* -- Types -- */
 
@@ -29,13 +24,6 @@ namespace lineage
    */
   class default_render_manager final : public lineage::render_manager
   {
-
-    /* -- Types -- */
-
-  private:
-
-    /** The type of vertex the renderer is using. */
-    using vertex_type = lineage::vertex334;
 
     /* -- Lifecycle -- */
 
@@ -55,7 +43,7 @@ namespace lineage
     /**
      * Destructor.
      */
-    virtual ~default_render_manager() = default;
+    virtual ~default_render_manager();
 
   private:
 
@@ -75,18 +63,8 @@ namespace lineage
 
   private:
 
-    lineage::opengl& m_opengl;
-    const lineage::default_state_manager& m_state_manager;
-    const lineage::shader_program m_program;
-    lineage::vertex_array m_vao;
-
-    void render_init(const lineage::render_args& args);
-
-    glm::mat4 view_matrix() const;
-    glm::mat4 proj_matrix(const lineage::render_args& args) const;
-
-    static lineage::shader_program create_shader_program();
-    template <typename TVertex> static lineage::vertex_array create_vertex_array();
+    struct implementation;
+    std::unique_ptr<implementation> impl;
 
   };
 

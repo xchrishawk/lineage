@@ -56,6 +56,13 @@ shader_program::shader_program(shader_program&& other) noexcept
   std::swap(m_handle, other.m_handle);
 }
 
+shader_program& shader_program::operator =(shader_program&& other) noexcept
+{
+  m_handle = other.m_handle;
+  other.m_handle = INVALID_HANDLE;
+  return *this;
+}
+
 shader_program::~shader_program()
 {
   if (m_handle == INVALID_HANDLE)

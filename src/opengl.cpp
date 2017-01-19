@@ -8,6 +8,9 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
+
+#include <glm/gtc/type_ptr.hpp>
 
 #include "api.hpp"
 #include "debug.hpp"
@@ -21,19 +24,42 @@
 using namespace std::string_literals;
 using namespace lineage;
 
+/* -- Types -- */
+
+struct opengl::implementation
+{
+
+  /* -- Fields -- */
+
+  static opengl* s_instance;
+
+  std::vector<GLuint> programs;
+  std::vector<GLuint> vertex_arrays;
+
+  /* -- Procedures -- */
+
+  /** Get the OpenGL string with the specified name. */
+  static std::string get_string(GLenum name)
+  {
+    const GLubyte* ustr = glGetString(name);
+    const char* cstr = reinterpret_cast<const char*>(ustr);
+    return std::string(cstr);
+  }
+
+};
+
 /* -- Variables -- */
 
-opengl* opengl::s_instance = nullptr;
+opengl* opengl::implementation::s_instance = nullptr;
 
 /* -- Procedures -- */
 
 opengl::opengl()
-  : m_programs(),
-    m_vertex_arrays()
+  : impl(std::make_unique<implementation>())
 {
-  if (s_instance)
+  if (implementation::s_instance)
     throw std::logic_error("Attempted to initialize OpenGL while it was already initialized!");
-  s_instance = this;
+  implementation::s_instance = this;
 
   try
   {
@@ -58,54 +84,80 @@ opengl::opengl()
   }
   catch (...)
   {
-    s_instance = nullptr;
+    implementation::s_instance = nullptr;
     throw;
   }
 }
 
 opengl::~opengl()
 {
-  s_instance = nullptr;
+  implementation::s_instance = nullptr;
   lineage_log_status("OpenGL terminated.");
+}
+
+std::string opengl::api_version() const
+{
+  return implementation::get_string(GL_VERSION);
+}
+
+std::string opengl::shading_language_version() const
+{
+  return implementation::get_string(GL_SHADING_LANGUAGE_VERSION);
+}
+
+std::string opengl::renderer() const
+{
+  return implementation::get_string(GL_RENDERER);
+}
+
+std::string opengl::vendor() const
+{
+  return implementation::get_string(GL_VENDOR);
+}
+
+bool opengl::is_supported(const std::string& extension) const
+{
+  return (glewIsSupported(extension.c_str()) == GL_TRUE);
+}
+
+void opengl::set_uniform(GLuint uniform, const glm::mat4& matrix)
+{
+  glUniformMatrix4fv(uniform,			// location
+                     1,				// count
+                     GL_FALSE,			// transpose
+                     glm::value_ptr(matrix));	// value
 }
 
 void opengl::push_program(const shader_program& program)
 {
-  m_programs.push_back(program.m_handle);
+  impl->programs.push_back(program.m_handle);
   glUseProgram(program.m_handle);
 }
 
 void opengl::pop_program()
 {
-  if (m_programs.empty())
+  if (impl->programs.empty())
   {
     lineage_assert_fail("Attempted to pop shader program with no active shader program!");
     return;
   }
-  m_programs.pop_back();
-  glUseProgram(m_programs.empty() ? 0 : m_programs.back());
+  impl->programs.pop_back();
+  glUseProgram(impl->programs.empty() ? 0 : impl->programs.back());
 }
 
 void opengl::push_vertex_array(const vertex_array& vao)
 {
-  m_vertex_arrays.push_back(vao.m_handle);
+  impl->vertex_arrays.push_back(vao.m_handle);
   glBindVertexArray(vao.m_handle);
 }
 
 void opengl::pop_vertex_array()
 {
-  if (m_vertex_arrays.empty())
+  if (impl->vertex_arrays.empty())
   {
     lineage_assert_fail("Attempted to pop vertex array with no active vertex array!");
     return;
   }
-  m_vertex_arrays.pop_back();
-  glBindVertexArray(m_vertex_arrays.empty() ? 0 : m_vertex_arrays.back());
-}
-
-std::string opengl::get_string(GLenum name)
-{
-  const GLubyte* ustr = glGetString(name);
-  const char* cstr = reinterpret_cast<const char*>(ustr);
-  return std::string(cstr);
+  impl->vertex_arrays.pop_back();
+  glBindVertexArray(impl->vertex_arrays.empty() ? 0 : impl->vertex_arrays.back());
 }

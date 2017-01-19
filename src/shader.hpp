@@ -61,14 +61,25 @@ namespace lineage
      */
     shader(GLenum type);
 
+    /**
+     * Move constructor.
+     */
     shader(lineage::shader&& other) noexcept;
+
+    /**
+     * Move assignment operator.
+     */
+    lineage::shader& operator =(lineage::shader&& other) noexcept;
+
+    /**
+     * Destructor.
+     */
     ~shader();
 
   private:
 
     shader(const lineage::shader&) = delete;
     lineage::shader& operator =(const lineage::shader&) = delete;
-    lineage::shader& operator =(lineage::shader&&) = delete;
 
     /* -- Public Methods -- */
 

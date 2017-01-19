@@ -68,14 +68,25 @@ namespace lineage
      */
     shader_program();
 
-    shader_program(lineage::shader_program&&) noexcept;
+    /**
+     * Move constructor.
+     */
+    shader_program(lineage::shader_program&& other) noexcept;
+
+    /**
+     * Move assignment operator.
+     */
+    lineage::shader_program& operator =(lineage::shader_program&& other) noexcept;
+
+    /**
+     * Destructor.
+     */
     ~shader_program();
 
   private:
 
     shader_program(const lineage::shader_program&) = delete;
     lineage::shader_program& operator =(const lineage::shader_program&) = delete;
-    lineage::shader_program& operator =(lineage::shader_program&&) = delete;
 
     /* -- Public Methods -- */
 

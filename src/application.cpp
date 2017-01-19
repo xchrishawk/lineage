@@ -23,30 +23,94 @@
 
 using namespace lineage;
 
-/* -- Procedures -- */
+/* -- Types -- */
 
-application::application(lineage::window& window,
-                         lineage::opengl& opengl,
-                         lineage::input_manager& input_manager,
-                         lineage::state_manager& state_manager,
-                         lineage::render_manager& render_manager)
-  : m_window(window),
-    m_opengl(opengl),
-    m_input_manager(input_manager),
-    m_state_manager(state_manager),
-    m_render_manager(render_manager)
+/**
+ * Implementation for the `lineage::application` class.
+ */
+struct application::implementation
 {
-  m_input_manager.add_observer(*this);
-  lineage_log_status("Application launched succesfully.");
+
+  /* -- Constructor -- */
+
+  implementation(lineage::window& window,
+                 lineage::opengl& opengl,
+                 lineage::input_manager& input_manager,
+                 lineage::state_manager& state_manager,
+                 lineage::render_manager& render_manager)
+    : window(window),
+      opengl(opengl),
+      input_manager(input_manager),
+      state_manager(state_manager),
+      render_manager(render_manager)
+  { }
+
+  /* -- Fields -- */
+
+  lineage::window& window;
+  lineage::opengl& opengl;
+  lineage::input_manager& input_manager;
+  lineage::state_manager& state_manager;
+  lineage::render_manager& render_manager;
+
+  /* -- Methods -- */
+
+  /** Handles application input. */
+  void do_input()
+  {
+    window.poll_events();
+  }
+
+  /** Updates the state object. */
+  void do_state(double abs_t, double delta_t)
+  {
+    state_args args;
+    args.abs_t = abs_t;
+    args.delta_t = delta_t;
+
+    state_manager.run(args);
+  }
+
+  /** Renders a frame. */
+  void do_render(double abs_t, double delta_t)
+  {
+    render_args args;
+    args.abs_t = abs_t;
+    args.delta_t = delta_t;
+    window.framebuffer_size(&args.framebuffer_width, &args.framebuffer_height);
+
+    render_manager.render(args);
+    window.swap_buffers();
 
 #if defined(LINEAGE_DEBUG)
-  prototype_function();
+    GLenum error = opengl_error::last_error();
+    if (error != GL_NO_ERROR)
+    {
+      std::ostringstream message;
+      message << "Unexpected OpenGL error! " << opengl_error::error_string(error);
+      lineage_log_warning(message.str());
+    }
 #endif
+  }
+
+};
+
+/* -- Procedures -- */
+
+application::application(window& window,
+                         opengl& opengl,
+                         input_manager& input_manager,
+                         state_manager& state_manager,
+                         render_manager& render_manager)
+  : impl(std::make_unique<implementation>(window, opengl, input_manager, state_manager, render_manager))
+{
+  impl->input_manager.add_observer(*this);
+  lineage_log_status("Application launched succesfully.");
 }
 
 application::~application()
 {
-  m_input_manager.remove_observer(*this);
+  impl->input_manager.remove_observer(*this);
   lineage_log_status("Application terminating...");
 }
 
@@ -54,30 +118,30 @@ void application::main()
 {
   lineage_log_status("Entering main application loop...");
 
-  double state_last_t = m_window.time();
-  double render_last_t = m_window.time();
+  double state_last_t = impl->window.time();
+  double render_last_t = impl->window.time();
 
-  while (!m_window.should_close())
+  while (!impl->window.should_close())
   {
     // process input every loop
-    do_input();
+    impl->do_input();
 
     // get current tick count
-    double abs_t = m_window.time();
+    double abs_t = impl->window.time();
 
     // process state if needed
     double state_delta_t = abs_t - state_last_t;
-    if (state_delta_t > m_state_manager.target_delta_t())
+    if (state_delta_t > impl->state_manager.target_delta_t())
     {
-      do_state(abs_t, state_delta_t);
+      impl->do_state(abs_t, state_delta_t);
       state_last_t = abs_t;
     }
 
     // render if needed
     double render_delta_t = abs_t - render_last_t;
-    if (render_delta_t > m_render_manager.target_delta_t())
+    if (render_delta_t > impl->render_manager.target_delta_t())
     {
-      do_render(abs_t, render_delta_t);
+      impl->do_render(abs_t, render_delta_t);
       render_last_t = abs_t;
     }
   }
@@ -88,48 +152,5 @@ void application::main()
 void application::input_event(input_type type, input_state state)
 {
   if (type == input_type::application_exit && state == input_state::active)
-    m_window.set_should_close(true);
+    impl->window.set_should_close(true);
 }
-
-void application::do_input()
-{
-  m_window.poll_events();
-}
-
-void application::do_state(double abs_t, double delta_t)
-{
-  state_args args;
-  args.abs_t = abs_t;
-  args.delta_t = delta_t;
-
-  m_state_manager.run(args);
-}
-
-void application::do_render(double abs_t, double delta_t)
-{
-  render_args args;
-  args.abs_t = abs_t;
-  args.delta_t = delta_t;
-  m_window.framebuffer_size(&args.framebuffer_width, &args.framebuffer_height);
-
-  m_render_manager.render(args);
-  m_window.swap_buffers();
-
-#if defined(LINEAGE_DEBUG)
-  GLenum error = opengl_error::last_error();
-  if (error != GL_NO_ERROR)
-  {
-    std::ostringstream message;
-    message << "Unexpected OpenGL error! " << opengl_error::error_string(error);
-    lineage_log_warning(message.str());
-  }
-#endif
-}
-
-#if defined(LINEAGE_DEBUG)
-
-void application::prototype_function()
-{
-}
-
-#endif

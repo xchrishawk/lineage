@@ -49,10 +49,17 @@ vertex_array::vertex_array()
     opengl_error::throw_last_error();
 }
 
-vertex_array::vertex_array(lineage::vertex_array&& other) noexcept
+vertex_array::vertex_array(vertex_array&& other) noexcept
   : m_handle(INVALID_HANDLE)
 {
   std::swap(m_handle, other.m_handle);
+}
+
+vertex_array& vertex_array::operator =(vertex_array&& other) noexcept
+{
+  m_handle = other.m_handle;
+  other.m_handle = INVALID_HANDLE;
+  return *this;
 }
 
 vertex_array::~vertex_array()

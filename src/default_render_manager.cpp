@@ -22,6 +22,7 @@
 #include "shader_program.hpp"
 #include "shader_source.hpp"
 #include "state_manager.hpp"
+#include "util.hpp"
 #include "vertex.hpp"
 #include "vertex_array.hpp"
 
@@ -48,81 +49,80 @@ namespace
   const GLuint BINDING_INDEX = 0;
 }
 
-/* -- Procedures -- */
+/* -- Types -- */
 
-default_render_manager::default_render_manager(opengl& opengl, const default_state_manager& state_manager)
-  : m_opengl(opengl),
-    m_state_manager(state_manager),
-    m_program(create_shader_program()),
-    m_vao(create_vertex_array<vertex_type>())
+/**
+ * Implementation for the `lineage::default_render_manager` class.
+ */
+struct default_render_manager::implementation
 {
-}
 
-void default_render_manager::render(const render_args& args)
-{
-  // activate program
-  m_opengl.push_program(m_program);
-  defer pop_program([&] { m_opengl.pop_program(); });
+  /* -- Constructor -- */
 
-  // actviate vertex array
-  m_opengl.push_vertex_array(m_vao);
-  defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
+  implementation(lineage::opengl& opengl,
+                 const lineage::default_state_manager& state_manager)
+    : opengl(opengl),
+      state_manager(state_manager),
+      program(implementation::create_shader_program()),
+      vao(implementation::create_vertex_array<vertex334>())
+  { }
 
-  // set common uniforms
-  m_opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, view_matrix());
-  m_opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, proj_matrix(args));
+  /* -- Fields -- */
 
-  // initialize framebuffer
-  render_init(args);
-}
+  lineage::opengl& opengl;
+  const lineage::default_state_manager& state_manager;
+  const lineage::shader_program program;
+  lineage::vertex_array vao;
 
-double default_render_manager::target_delta_t() const
-{
-  return (1.0 / 60.0); // 60 HZ
-}
+  /* -- Procedures -- */
 
-void default_render_manager::render_init(const render_args& args)
-{
-  // set viewport
-  glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
-
-  // clear buffer
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-}
-
-glm::mat4 default_render_manager::view_matrix() const
-{
+  /** Create the view matrix to use for rendering. */
+  glm::mat4 view_matrix() const
+  {
     auto matrix =
-      glm::translate(m_state_manager.camera_position()) *
-      glm::mat4_cast(m_state_manager.camera_rotation());
+      glm::translate(state_manager.camera_position()) *
+      glm::mat4_cast(state_manager.camera_rotation());
     return glm::inverse(matrix);
-}
+  }
 
-glm::mat4 default_render_manager::proj_matrix(const render_args& args) const
-{
+  /** Create the projection matrix to use for rendering. */
+  glm::mat4 proj_matrix(const render_args& args) const
+  {
     float aspect_ratio =
       static_cast<float>(args.framebuffer_width) /
       static_cast<float>(args.framebuffer_height);
-    return glm::perspective(m_state_manager.camera_fov(),
+    return glm::perspective(state_manager.camera_fov(),
                             aspect_ratio,
-                            m_state_manager.camera_clip_near(),
-                            m_state_manager.camera_clip_far());
-}
+                            state_manager.camera_clip_near(),
+                            state_manager.camera_clip_far());
+  }
 
-shader_program default_render_manager::create_shader_program()
-{
-  auto vertex_shader
-    = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
-  auto fragment_shader
-    = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
+  /** Initialize the framebuffer for rendering. */
+  void render_init(const render_args& args)
+  {
+    // set viewport
+    glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
 
-  return lineage::create_shader_program({ &vertex_shader, &fragment_shader });
-}
+    // clear buffer
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 
-template <typename TVertex>
-vertex_array default_render_manager::create_vertex_array()
-{
+  /** Creates the shader program for the renderer to be use. */
+  static shader_program create_shader_program()
+  {
+    auto vertex_shader
+      = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
+    auto fragment_shader
+      = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
+
+    return lineage::create_shader_program({ &vertex_shader, &fragment_shader });
+  }
+
+  /** Creates the vertex array for the renderer to use. */
+  template <typename TVertex>
+  static vertex_array create_vertex_array()
+  {
     vertex_array vao;
 
     configure_attribute(vao,
@@ -139,4 +139,38 @@ vertex_array default_render_manager::create_vertex_array()
                         color_attribute_spec<TVertex>());
 
     return vao;
+  }
+
+};
+
+/* -- Procedures -- */
+
+default_render_manager::default_render_manager(opengl& opengl, const default_state_manager& state_manager)
+  : impl(std::make_unique<implementation>(opengl, state_manager))
+{
+}
+
+default_render_manager::~default_render_manager() = default;
+
+void default_render_manager::render(const render_args& args)
+{
+  // activate program
+  impl->opengl.push_program(impl->program);
+  defer pop_program([&] { impl->opengl.pop_program(); });
+
+  // actviate vertex array
+  impl->opengl.push_vertex_array(impl->vao);
+  defer pop_vertex_array([&] { impl->opengl.pop_vertex_array(); });
+
+  // set common uniforms
+  impl->opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, impl->view_matrix());
+  impl->opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, impl->proj_matrix(args));
+
+  // initialize framebuffer
+  impl->render_init(args);
+}
+
+double default_render_manager::target_delta_t() const
+{
+  return (1.0 / 60.0); // 60 HZ
 }

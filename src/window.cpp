@@ -8,32 +8,71 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include "api.hpp"
 #include "debug.hpp"
+#include "util.hpp"
 #include "window.hpp"
 
 /* -- Namespaces -- */
 
 using namespace lineage;
 
+/* -- Types -- */
+
+struct window::implementation
+{
+
+  /* -- Fields -- */
+
+  static window* s_instance;
+  GLFWwindow* handle;
+  std::vector<window_observer*> observers;
+
+  /* -- Methods -- */
+
+  /** GLFW error callback. */
+  static void error_callback(int error, const char* description)
+  {
+#if defined(LINEAGE_DEBUG)
+    std::ostringstream message;
+    message << "GLFW error " << error << "! " << description;
+    lineage_log_warning(message.str());
+#endif
+  }
+
+  /** GLFW key event callback. */
+  static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+  {
+    if (s_instance == nullptr)
+    {
+      lineage_assert_fail("Received key callback with no active window!");
+      return;
+    }
+
+    for (auto* const observer : s_instance->impl->observers)
+      observer->window_key_event(key, action, mods);
+  }
+
+};
+
 /* -- Variables -- */
 
-window* window::s_instance = nullptr;
+window* window::implementation::s_instance = nullptr;
 
 /* -- Procedures -- */
 
 window::window(const window_args& args)
-  : m_handle(nullptr),
-    m_observers()
+  : impl(std::make_unique<implementation>())
 {
-  if (s_instance != nullptr)
+  if (implementation::s_instance != nullptr)
     throw std::logic_error("Only one window is allowed at a time!");
-  s_instance = this;
+  implementation::s_instance = this;
 
   try
   {
-    glfwSetErrorCallback(window::error_callback);
+    glfwSetErrorCallback(implementation::error_callback);
     if (!glfwInit())
       throw std::runtime_error("Failed to initialize GLFW!");
 
@@ -42,53 +81,82 @@ window::window(const window_args& args)
     glfwWindowHint(GLFW_OPENGL_PROFILE, args.context_profile);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, static_cast<int>(args.context_forward_compatibility));
 
-    m_handle = glfwCreateWindow(args.width,
+    impl->handle = glfwCreateWindow(args.width,
                                 args.height,
                                 args.title.c_str(),
                                 nullptr,
                                 nullptr);
-    if (!m_handle)
+    if (!impl->handle)
       throw std::runtime_error("Failed to create GLFW window!");
 
-    glfwMakeContextCurrent(m_handle);
-    glfwSetKeyCallback(m_handle, window::key_callback);
+    glfwMakeContextCurrent(impl->handle);
+    glfwSetKeyCallback(impl->handle, implementation::key_callback);
     glfwSwapInterval(args.swap_interval);
 
     lineage_log_status("GLFW initialized!", "API Version:\t\t\t" + api_version());
   }
   catch (...)
   {
-    s_instance = nullptr;
+    implementation::s_instance = nullptr;
     throw;
   }
 }
 
 window::~window()
 {
-  glfwDestroyWindow(m_handle);
+  glfwDestroyWindow(impl->handle);
   glfwTerminate();
 
-  s_instance = nullptr;
+  implementation::s_instance = nullptr;
   lineage_log_status("GLFW terminated.");
 }
 
-void window::error_callback(int error, const char* description)
+std::string window::api_version() const
 {
-#if defined(LINEAGE_DEBUG)
-  std::ostringstream message;
-  message << "GLFW error " << error << "! " << description;
-  lineage_log_warning(message.str());
-#endif
+  return std::string(glfwGetVersionString());
 }
 
-void window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+double window::time() const
 {
-  if (s_instance == nullptr)
-  {
-    lineage_assert_fail("Received key callback with no active window!");
-    return;
-  }
+  return glfwGetTime();
+}
 
-  for (auto* const observer : s_instance->m_observers)
-    observer->window_key_event(key, action, mods);
+void window::poll_events() const
+{
+  glfwPollEvents();
+}
+
+void window::swap_buffers()
+{
+  glfwSwapBuffers(impl->handle);
+}
+
+bool window::should_close() const
+{
+  return static_cast<bool>(glfwWindowShouldClose(impl->handle));
+}
+
+void window::set_should_close(bool should_close)
+{
+  glfwSetWindowShouldClose(impl->handle, static_cast<int>(should_close));
+}
+
+void window::window_size(int* width, int* height) const
+{
+  glfwGetWindowSize(impl->handle, width, height);
+}
+
+void window::framebuffer_size(int* width, int* height) const
+{
+  glfwGetFramebufferSize(impl->handle, width, height);
+}
+
+void window::add_observer(lineage::window_observer* observer) const
+{
+  impl->observers.push_back(observer);
+}
+
+void window::remove_observer(lineage::window_observer* observer) const
+{
+  remove_all(impl->observers, observer);
 }

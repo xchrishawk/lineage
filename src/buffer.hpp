@@ -8,9 +8,6 @@
 
 /* -- Includes -- */
 
-#include <limits>
-#include <utility>
-
 #include "api.hpp"
 #include "opengl_error.hpp"
 
@@ -25,13 +22,6 @@ namespace lineage
   class buffer
   {
 
-    /* -- Constants -- */
-
-  public:
-
-    /** Invalid buffer handle. */
-    static const GLuint invalid_handle = std::numeric_limits<GLuint>::max();
-
     /* -- Lifecycle -- */
 
   protected:
@@ -39,43 +29,24 @@ namespace lineage
     /**
      * Constructs a new `lineage::buffer` object.
      */
-    buffer()
-      : m_handle(new_buffer_handle())
-    {
-      if (m_handle == invalid_handle)
-        opengl_error::throw_last_error();
-    }
-
-  public:
+    buffer();
 
     /**
      * Move constructor.
      */
-    buffer(lineage::buffer&& other) noexcept
-      : m_handle(invalid_handle)
-    {
-      std::swap(m_handle, other.m_handle);
-    }
+    buffer(lineage::buffer&& other) noexcept;
 
     /**
      * Move assignment operator.
      */
-    lineage::buffer& operator =(lineage::buffer&& other) noexcept
-    {
-      m_handle = other.m_handle;
-      other.m_handle = invalid_handle;
-      return *this;
-    }
+    lineage::buffer& operator =(lineage::buffer&& other) noexcept;
+
+  public:
 
     /**
      * Destructor.
      */
-    virtual ~buffer()
-    {
-      if (m_handle == invalid_handle)
-        return;
-      glDeleteBuffers(1, &m_handle);
-    }
+    virtual ~buffer();
 
   private:
 
@@ -89,98 +60,62 @@ namespace lineage
     /**
      * Returns a subset of this buffer object's data.
      */
-    void get_data(size_t offset, size_t size, void* data) const
-    {
-      glGetNamedBufferSubData(m_handle, offset, size, data);
-    }
+    void get_data(size_t offset, size_t size, void* data) const;
 
     /**
      * Updates the data contained in this buffer object.
      */
-    void set_data(size_t offset, size_t size, const void* data)
-    {
-      glNamedBufferSubData(m_handle, offset, size, data);
-    }
+    void set_data(size_t offset, size_t size, const void* data);
 
     /**
      * Maps this buffer to memory for direct access.
      */
-    void* map(GLenum access)
-    {
-      return glMapNamedBuffer(m_handle, access);
-    }
+    void* map(GLenum access);
 
     /**
      * Unmaps this buffer.
      */
-    void unmap()
-    {
-      glUnmapNamedBuffer(m_handle);
-    }
+    void unmap();
 
     /**
      * Returns `true` if the `GL_BUFFER_IMMUTABLE_STORAGE` parameter is `GL_TRUE` for this buffer.
      */
-    bool is_immutable() const
-    {
-      return static_cast<bool>(get_buffer_parameter(GL_BUFFER_IMMUTABLE_STORAGE));
-    }
+    bool is_immutable() const;
 
     /**
      * Returns the value of the `GL_BUFFER_SIZE` parameter for this buffer.
      */
-    size_t size() const
-    {
-      return static_cast<size_t>(get_buffer_parameter_64(GL_BUFFER_SIZE));
-    }
+    size_t size() const;
 
     /**
      * Returns the value of the `GL_BUFFER_STORAGE_FLAGS` parameter for this buffer.
      */
-    GLbitfield storage_flags() const
-    {
-      return static_cast<GLbitfield>(get_buffer_parameter(GL_BUFFER_STORAGE_FLAGS));
-    }
+    GLbitfield storage_flags() const;
 
     /**
      * Returns the value of the `GL_BUFFER_USAGE` parameter for this buffer.
      */
-    GLenum usage() const
-    {
-      return static_cast<GLenum>(get_buffer_parameter(GL_BUFFER_USAGE));
-    }
+    GLenum usage() const;
 
     /**
      * Returns `true` if the `GL_BUFFER_MAPPED` parameter is `GL_TRUE` for this buffer.
      */
-    bool is_mapped() const
-    {
-      return static_cast<bool>(get_buffer_parameter(GL_BUFFER_MAPPED));
-    }
+    bool is_mapped() const;
 
     /**
      * Returns the value of the `GL_BUFFER_MAP_OFFSET` parameter for this buffer.
      */
-    size_t map_offset() const
-    {
-      return static_cast<size_t>(get_buffer_parameter(GL_BUFFER_MAP_OFFSET));
-    }
+    size_t map_offset() const;
 
     /**
      * Returns the value of the `GL_BUFFER_MAP_LENGTH` parameter for this buffer.
      */
-    size_t map_size() const
-    {
-      return static_cast<size_t>(get_buffer_parameter(GL_BUFFER_MAP_LENGTH));
-    }
+    size_t map_size() const;
 
     /**
      * Returns the value of the `GL_BUFFER_ACCESS` buffer parameter.
      */
-    GLenum map_access() const
-    {
-      return static_cast<GLenum>(get_buffer_parameter(GL_BUFFER_ACCESS));
-    }
+    GLenum map_access() const;
 
     /* -- Implementation -- */
 
@@ -189,10 +124,6 @@ namespace lineage
     friend class vertex_array;
 
     GLuint m_handle;
-
-    static GLuint new_buffer_handle();
-    GLint get_buffer_parameter(GLenum param) const;
-    GLint64 get_buffer_parameter_64(GLenum param) const;
 
   };
 
@@ -225,23 +156,27 @@ namespace lineage
      * @note
      * This initializes the buffer using a call to `glNamedBufferStorage()`.
      */
-    immutable_buffer(size_t size, const void* data, GLbitfield flags)
-      : lineage::buffer()
-    {
-      glNamedBufferStorage(m_handle, size, data, flags);
-    }
+    immutable_buffer(size_t size, const void* data, GLbitfield flags);
 
     /**
      * Move constructor.
      */
-    immutable_buffer(lineage::immutable_buffer&& other)
-      : lineage::buffer(std::move(other))
-    { }
+    immutable_buffer(lineage::immutable_buffer&& other) noexcept;
+
+    /**
+     * Move assignment operator.
+     */
+    immutable_buffer& operator =(lineage::immutable_buffer&& other) noexcept;
 
     /**
      * Destructor.
      */
     virtual ~immutable_buffer() = default;
+
+  private:
+
+    immutable_buffer(const lineage::immutable_buffer&) = delete;
+    lineage::immutable_buffer& operator =(const lineage::immutable_buffer&) = delete;
 
   };
 

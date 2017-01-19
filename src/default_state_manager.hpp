@@ -8,8 +8,8 @@
 
 /* -- Includes -- */
 
+#include <memory>
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "input_manager.hpp"
 #include "state_manager.hpp"
@@ -37,7 +37,10 @@ namespace lineage
      */
     default_state_manager(const lineage::input_manager& input_manager);
 
-    virtual ~default_state_manager() = default;
+    /**
+     * Destructor.
+     */
+    virtual ~default_state_manager();
 
   private:
 
@@ -53,42 +56,27 @@ namespace lineage
     /**
      * The current camera position.
      */
-    const glm::vec3& camera_position() const
-    {
-      return m_camera_position;
-    }
+    const glm::vec3& camera_position() const;
 
     /**
      * The current camera rotation.
      */
-    const glm::quat& camera_rotation() const
-    {
-      return m_camera_rotation;
-    }
+    const glm::quat& camera_rotation() const;
 
     /**
      * The current camera field of view in the Y axis, in radians.
      */
-    float camera_fov() const
-    {
-      return m_camera_fov;
-    }
+    float camera_fov() const;
 
     /**
      * The current camera near clip distance.
      */
-    float camera_clip_near() const
-    {
-      return m_camera_clip_near;
-    }
+    float camera_clip_near() const;
 
     /**
      * The current camera far clip distance.
      */
-    float camera_clip_far() const
-    {
-      return m_camera_clip_far;
-    }
+    float camera_clip_far() const;
 
     /* -- `lineage::state_manager` Implementation -- */
 
@@ -101,17 +89,8 @@ namespace lineage
 
   private:
 
-    const lineage::input_manager& m_input_manager;
-    glm::vec3 m_camera_position;
-    glm::quat m_camera_rotation;
-    float m_camera_fov;
-    float m_camera_clip_near;
-    float m_camera_clip_far;
-
-    void update_camera_position(const lineage::state_args& args);
-    void update_camera_rotation(const lineage::state_args& args);
-    void update_camera_fov(const lineage::state_args& args);
-    bool input_active(lineage::input_type type);
+    struct implementation;
+    std::unique_ptr<implementation> impl;
 
   };
 

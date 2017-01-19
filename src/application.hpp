@@ -8,6 +8,8 @@
 
 /* -- Includes -- */
 
+#include <memory>
+
 #include "input_manager.hpp"
 
 /* -- Types -- */
@@ -80,19 +82,8 @@ namespace lineage
 
   private:
 
-    lineage::window& m_window;
-    lineage::opengl& m_opengl;
-    lineage::input_manager& m_input_manager;
-    lineage::state_manager& m_state_manager;
-    lineage::render_manager& m_render_manager;
-
-    void do_input();
-    void do_state(double abs_t, double delta_t);
-    void do_render(double abs_t, double delta_t);
-
-#if defined(LINEAGE_DEBUG)
-    void prototype_function();
-#endif
+    struct implementation;
+    std::unique_ptr<implementation> impl;
 
   };
 

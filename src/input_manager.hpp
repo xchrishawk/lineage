@@ -8,8 +8,7 @@
 
 /* -- Includes -- */
 
-#include <unordered_map>
-#include <vector>
+#include <memory>
 
 #include "window.hpp"
 
@@ -96,6 +95,9 @@ namespace lineage
      */
     input_manager(const lineage::window& window);
 
+    /**
+     * Destructor.
+     */
     ~input_manager();
 
   private:
@@ -139,12 +141,8 @@ namespace lineage
 
   private:
 
-    const lineage::window& m_window;
-    std::unordered_map<lineage::input_type, lineage::input_state, lineage::enum_class_hash> m_states;
-    mutable std::vector<lineage::input_observer*> m_observers;
-
-    lineage::input_type input_type_for_key_event(int key, int mods);
-    lineage::input_state input_state_for_key_event(int action);
+    struct implementation;
+    std::unique_ptr<implementation> impl;
 
   };
 

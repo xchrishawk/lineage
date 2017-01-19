@@ -39,14 +39,25 @@ namespace lineage
      */
     vertex_array();
 
+    /**
+     * Move constructor.
+     */
     vertex_array(lineage::vertex_array&& other) noexcept;
+
+    /**
+     * Move assignment operator.
+     */
+    lineage::vertex_array& operator =(lineage::vertex_array&& other) noexcept;
+
+    /**
+     * Destructor.
+     */
     ~vertex_array();
 
   private:
 
     vertex_array(const lineage::vertex_array&) = delete;
     lineage::vertex_array& operator =(const lineage::vertex_array&) = delete;
-    lineage::vertex_array& operator =(lineage::vertex_array&&) = delete;
 
     /* -- Public Methods -- */
 

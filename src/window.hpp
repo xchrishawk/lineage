@@ -8,11 +8,7 @@
 
 /* -- Includes -- */
 
-#include <string>
-#include <vector>
-
-#include "api.hpp"
-#include "util.hpp"
+#include <memory>
 
 /* -- Types -- */
 
@@ -85,6 +81,9 @@ namespace lineage
      */
     window(const lineage::window_args& args);
 
+    /**
+     * Destructor.
+     */
     ~window();
 
   private:
@@ -101,93 +100,59 @@ namespace lineage
     /**
      * Returns the GLFW version string.
      */
-    std::string api_version() const
-    {
-      return std::string(glfwGetVersionString());
-    }
+    std::string api_version() const;
 
     /**
      * Returns the current GLFW elapsed time, in seconds.
      */
-    double time() const
-    {
-      return glfwGetTime();
-    }
+    double time() const;
 
     /**
      * Polls the GLFW API for events.
      */
-    void poll_events() const
-    {
-      glfwPollEvents();
-    }
+    void poll_events() const;
 
     /**
      * Swaps the window's front and back buffers.
      */
-    void swap_buffers()
-    {
-      glfwSwapBuffers(m_handle);
-    }
+    void swap_buffers();
 
     /**
      * Returns the window's "should close" flag.
      */
-    bool should_close() const
-    {
-      return static_cast<bool>(glfwWindowShouldClose(m_handle));
-    }
+    bool should_close() const;
 
     /**
      * Sets the window's "should close" flag.
      */
-    void set_should_close(bool should_close)
-    {
-      glfwSetWindowShouldClose(m_handle, static_cast<int>(should_close));
-    }
+    void set_should_close(bool should_close);
 
     /**
      * Gets the size of the window.
      */
-    void window_size(int* width, int* height) const
-    {
-      glfwGetWindowSize(m_handle, width, height);
-    }
+    void window_size(int* width, int* height) const;
 
     /**
      * Gets the size of the window's frame buffer.
      */
-    void framebuffer_size(int* width, int* height) const
-    {
-      glfwGetFramebufferSize(m_handle, width, height);
-    }
+    void framebuffer_size(int* width, int* height) const;
 
     /**
      * Adds an observer to this window.
      */
-    void add_observer(lineage::window_observer* observer) const
-    {
-      m_observers.push_back(observer);
-    }
+    void add_observer(lineage::window_observer* observer) const;
 
     /**
      * Removes an observer from this window.
      */
-    void remove_observer(lineage::window_observer* observer) const
-    {
-      lineage::remove_all(m_observers, observer);
-    }
+    void remove_observer(lineage::window_observer* observer) const;
 
     /* -- Implementation -- */
 
   private:
 
-    static lineage::window* s_instance;
-    static void error_callback(int error, const char* description);
-    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-    GLFWwindow* m_handle;
-    mutable std::vector<window_observer*> m_observers;
+    struct implementation;
+    std::unique_ptr<implementation> impl;
 
   };
 

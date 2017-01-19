@@ -45,6 +45,15 @@ shader::shader(shader&& other) noexcept
   std::swap(m_handle, other.m_handle);
 }
 
+shader& shader::operator =(shader&& other) noexcept
+{
+  m_type = other.m_type;
+  m_handle = other.m_handle;
+  other.m_type = INVALID_TYPE;
+  other.m_handle = INVALID_HANDLE;
+  return *this;
+}
+
 shader::~shader()
 {
   if (m_handle == INVALID_HANDLE)

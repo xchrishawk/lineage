@@ -66,7 +66,7 @@ struct default_render_manager::implementation
       state_manager(state_manager),
       program(implementation::create_shader_program()),
       mesh(implementation::create_mesh()),
-      vao(implementation::create_vertex_array<vertex334>())
+      vao(implementation::create_vertex_array<vertex>())
   { }
 
   /* -- Fields -- */
@@ -74,7 +74,7 @@ struct default_render_manager::implementation
   lineage::opengl& opengl;
   const lineage::default_state_manager& state_manager;
   const std::unique_ptr<const lineage::shader_program> program;
-  const std::unique_ptr<const lineage::mesh<vertex334>> mesh;
+  const std::unique_ptr<const lineage::mesh> mesh;
   const std::unique_ptr<lineage::vertex_array> vao;
 
   /* -- Procedures -- */
@@ -112,11 +112,10 @@ struct default_render_manager::implementation
   }
 
   /** Renders the specified mesh. */
-  template <typename TVertex>
-  void render_mesh(const lineage::mesh<TVertex>& mesh)
+  void render_mesh(const lineage::mesh& mesh)
   {
     // bind vertex buffer
-    vao->bind_buffer(BINDING_INDEX, mesh.vertex_buffer(), 0, sizeof(TVertex));
+    vao->bind_buffer(BINDING_INDEX, mesh.vertex_buffer(), 0, mesh.vertex_size());
     defer unbind_buffer([&] { vao->unbind_buffer(BINDING_INDEX); });
 
     // draw vertices
@@ -145,16 +144,16 @@ struct default_render_manager::implementation
   }
 
   /** Creates the mesh to render. */
-  static std::unique_ptr<lineage::mesh<vertex334>> create_mesh()
+  static std::unique_ptr<lineage::mesh> create_mesh()
   {
-    static const std::vector<vertex334> VERTICES =
+    static const std::vector<vertex> VERTICES =
     {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-      { { 0.5f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f } },
-      { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f }, { } },
+      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f }, { } },
+      { { 0.5f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f }, { } },
+      { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f }, { } },
     };
-    return std::make_unique<lineage::mesh<vertex334>>(GL_TRIANGLE_FAN, VERTICES);
+    return std::make_unique<lineage::mesh>(GL_TRIANGLE_FAN, VERTICES);
   }
 
   /** Creates the vertex array for the renderer to use. */

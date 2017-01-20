@@ -6,6 +6,8 @@
 
 /* -- Includes -- */
 
+#include <memory>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -71,8 +73,9 @@ struct default_render_manager::implementation
 
   lineage::opengl& opengl;
   const lineage::default_state_manager& state_manager;
-  const lineage::shader_program program;
-  lineage::vertex_array vao;
+
+  const std::unique_ptr<const lineage::shader_program> program;
+  const std::unique_ptr<lineage::vertex_array> vao;
 
   /* -- Procedures -- */
 
@@ -109,31 +112,41 @@ struct default_render_manager::implementation
   }
 
   /** Creates the shader program for the renderer to be use. */
-  static shader_program create_shader_program()
+  static std::unique_ptr<shader_program> create_shader_program()
   {
-    auto vertex_shader
-      = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::default_vertex_shader));
-    auto fragment_shader
-      = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::default_fragment_shader));
+    shader vertex_shader(GL_VERTEX_SHADER);
+    vertex_shader.set_source(shader_source_string(shader_source::default_vertex_shader));
+    vertex_shader.compile();
 
-    return lineage::create_shader_program({ &vertex_shader, &fragment_shader });
+    shader fragment_shader(GL_FRAGMENT_SHADER);
+    fragment_shader.set_source(shader_source_string(shader_source::default_fragment_shader));
+    fragment_shader.compile();
+
+    auto program = std::make_unique<shader_program>();
+    program->attach_shader(vertex_shader);
+    program->attach_shader(fragment_shader);
+    program->link();
+    program->detach_shader(vertex_shader);
+    program->detach_shader(fragment_shader);
+
+    return program;
   }
 
   /** Creates the vertex array for the renderer to use. */
   template <typename TVertex>
-  static vertex_array create_vertex_array()
+  static std::unique_ptr<vertex_array> create_vertex_array()
   {
-    vertex_array vao;
+    auto vao = std::make_unique<vertex_array>();
 
-    configure_attribute(vao,
+    configure_attribute(*vao,
                         BINDING_INDEX,
                         VERTEX_POSITION_ATTRIBUTE_LOCATION,
                         position_attribute_spec<TVertex>());
-    configure_attribute(vao,
+    configure_attribute(*vao,
                         BINDING_INDEX,
                         VERTEX_NORMAL_ATTRIBUTE_LOCATION,
                         normal_attribute_spec<TVertex>());
-    configure_attribute(vao,
+    configure_attribute(*vao,
                         BINDING_INDEX,
                         VERTEX_COLOR_ATTRIBUTE_LOCATION,
                         color_attribute_spec<TVertex>());
@@ -155,11 +168,11 @@ default_render_manager::~default_render_manager() = default;
 void default_render_manager::render(const render_args& args)
 {
   // activate program
-  impl->opengl.push_program(impl->program);
+  impl->opengl.push_program(*impl->program);
   defer pop_program([&] { impl->opengl.pop_program(); });
 
   // actviate vertex array
-  impl->opengl.push_vertex_array(impl->vao);
+  impl->opengl.push_vertex_array(*impl->vao);
   defer pop_vertex_array([&] { impl->opengl.pop_vertex_array(); });
 
   // set common uniforms

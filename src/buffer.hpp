@@ -31,16 +31,6 @@ namespace lineage
      */
     buffer();
 
-    /**
-     * Move constructor.
-     */
-    buffer(lineage::buffer&& other) noexcept;
-
-    /**
-     * Move assignment operator.
-     */
-    lineage::buffer& operator =(lineage::buffer&& other) noexcept;
-
   public:
 
     /**
@@ -51,7 +41,9 @@ namespace lineage
   private:
 
     buffer(const lineage::buffer&) = delete;
+    buffer(lineage::buffer&&) = delete;
     lineage::buffer& operator =(const lineage::buffer&) = delete;
+    lineage::buffer& operator =(lineage::buffer&&) = delete;
 
     /* -- Public Methods -- */
 
@@ -159,16 +151,6 @@ namespace lineage
     immutable_buffer(size_t size, const void* data, GLbitfield flags);
 
     /**
-     * Move constructor.
-     */
-    immutable_buffer(lineage::immutable_buffer&& other) noexcept;
-
-    /**
-     * Move assignment operator.
-     */
-    immutable_buffer& operator =(lineage::immutable_buffer&& other) noexcept;
-
-    /**
      * Destructor.
      */
     virtual ~immutable_buffer() = default;
@@ -176,7 +158,9 @@ namespace lineage
   private:
 
     immutable_buffer(const lineage::immutable_buffer&) = delete;
+    immutable_buffer(lineage::immutable_buffer&&) = delete;
     lineage::immutable_buffer& operator =(const lineage::immutable_buffer&) = delete;
+    lineage::immutable_buffer& operator =(lineage::immutable_buffer&&) = delete;
 
   };
 

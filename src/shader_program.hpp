@@ -69,16 +69,6 @@ namespace lineage
     shader_program();
 
     /**
-     * Move constructor.
-     */
-    shader_program(lineage::shader_program&& other) noexcept;
-
-    /**
-     * Move assignment operator.
-     */
-    lineage::shader_program& operator =(lineage::shader_program&& other) noexcept;
-
-    /**
      * Destructor.
      */
     ~shader_program();
@@ -159,17 +149,5 @@ namespace lineage
     GLuint m_handle;
 
   };
-
-}
-
-/* -- Procedure Prototypes -- */
-
-namespace lineage
-{
-
-  /**
-   * Creates and links a shader program using the specified shdaers.
-   */
-  lineage::shader_program create_shader_program(const std::initializer_list<lineage::shader*>& shaders);
 
 }

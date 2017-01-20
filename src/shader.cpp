@@ -23,7 +23,6 @@ using namespace lineage;
 
 namespace
 {
-  const GLenum INVALID_TYPE = 0;
   const GLuint INVALID_HANDLE = 0;
 }
 
@@ -35,23 +34,6 @@ shader::shader(GLenum type)
 {
   if (m_handle == INVALID_HANDLE)
     opengl_error::throw_last_error();
-}
-
-shader::shader(shader&& other) noexcept
-  : m_type(INVALID_TYPE),
-    m_handle(INVALID_HANDLE)
-{
-  std::swap(m_type, other.m_type);
-  std::swap(m_handle, other.m_handle);
-}
-
-shader& shader::operator =(shader&& other) noexcept
-{
-  m_type = other.m_type;
-  m_handle = other.m_handle;
-  other.m_type = INVALID_TYPE;
-  other.m_handle = INVALID_HANDLE;
-  return *this;
 }
 
 shader::~shader()
@@ -136,12 +118,4 @@ const std::string& shader::type_string(GLenum shader_type)
   case GL_VERTEX_SHADER:		return GL_VERTEX_SHADER_STRING;
   default:				return UNKNOWN_SHADER_STRING;
   }
-}
-
-shader lineage::create_shader(GLenum type, const std::string& source)
-{
-  shader shader(type);
-  shader.set_source(source);
-  shader.compile();
-  return shader;
 }

@@ -62,16 +62,6 @@ namespace lineage
     shader(GLenum type);
 
     /**
-     * Move constructor.
-     */
-    shader(lineage::shader&& other) noexcept;
-
-    /**
-     * Move assignment operator.
-     */
-    lineage::shader& operator =(lineage::shader&& other) noexcept;
-
-    /**
      * Destructor.
      */
     ~shader();
@@ -79,7 +69,9 @@ namespace lineage
   private:
 
     shader(const lineage::shader&) = delete;
+    shader(lineage::shader&&) = delete;
     lineage::shader& operator =(const lineage::shader&) = delete;
+    lineage::shader& operator =(lineage::shader&&) = delete;
 
     /* -- Public Methods -- */
 
@@ -136,17 +128,5 @@ namespace lineage
     GLuint m_handle;
 
   };
-
-}
-
-/* -- Procedure Prototypes -- */
-
-namespace lineage
-{
-
-  /**
-   * Creates, compiles, and returns a shader with the specified type and source code string.
-   */
-  lineage::shader create_shader(GLenum type, const std::string& source);
 
 }

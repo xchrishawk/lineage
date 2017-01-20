@@ -62,19 +62,6 @@ buffer::buffer()
     opengl_error::throw_last_error();
 }
 
-buffer::buffer(buffer&& other) noexcept
-  : m_handle(INVALID_HANDLE)
-{
-  std::swap(m_handle, other.m_handle);
-}
-
-buffer& buffer::operator =(buffer&& other) noexcept
-{
-  m_handle = other.m_handle;
-  other.m_handle = INVALID_HANDLE;
-  return *this;
-}
-
 buffer::~buffer()
 {
   if (m_handle == INVALID_HANDLE)
@@ -146,15 +133,4 @@ immutable_buffer::immutable_buffer(size_t size, const void* data, GLbitfield fla
   : buffer()
 {
   glNamedBufferStorage(m_handle, size, data, flags);
-}
-
-immutable_buffer::immutable_buffer(immutable_buffer&& other) noexcept
-  : buffer(std::move(other))
-{
-}
-
-immutable_buffer& immutable_buffer::operator =(immutable_buffer&& other) noexcept
-{
-  buffer::operator =(std::move(other));
-  return *this;
 }

@@ -49,19 +49,6 @@ vertex_array::vertex_array()
     opengl_error::throw_last_error();
 }
 
-vertex_array::vertex_array(vertex_array&& other) noexcept
-  : m_handle(INVALID_HANDLE)
-{
-  std::swap(m_handle, other.m_handle);
-}
-
-vertex_array& vertex_array::operator =(vertex_array&& other) noexcept
-{
-  m_handle = other.m_handle;
-  other.m_handle = INVALID_HANDLE;
-  return *this;
-}
-
 vertex_array::~vertex_array()
 {
   if (m_handle == INVALID_HANDLE)
@@ -69,7 +56,11 @@ vertex_array::~vertex_array()
   glDeleteVertexArrays(1, &m_handle);
 }
 
-void vertex_array::set_attribute_format(GLuint attribute, size_t count, GLenum type, bool normalized, size_t relative_offset)
+void vertex_array::set_attribute_format(GLuint attribute,
+                                        size_t count,
+                                        GLenum type,
+                                        bool normalized,
+                                        size_t relative_offset)
 {
   glVertexArrayAttribFormat(m_handle,					// vaobj
                             attribute,					// attribindex
@@ -100,7 +91,10 @@ void vertex_array::set_attribute_array_enabled(GLuint attribute, bool enabled)
   }
 }
 
-void vertex_array::bind_buffer(GLuint binding_index, const buffer& buffer, size_t offset, size_t stride)
+void vertex_array::bind_buffer(GLuint binding_index,
+                               const buffer& buffer,
+                               size_t offset,
+                               size_t stride)
 {
   glVertexArrayVertexBuffer(m_handle,					// vaobj
                             binding_index,				// bindingindex

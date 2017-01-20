@@ -40,16 +40,6 @@ namespace lineage
     vertex_array();
 
     /**
-     * Move constructor.
-     */
-    vertex_array(lineage::vertex_array&& other) noexcept;
-
-    /**
-     * Move assignment operator.
-     */
-    lineage::vertex_array& operator =(lineage::vertex_array&& other) noexcept;
-
-    /**
      * Destructor.
      */
     ~vertex_array();
@@ -57,7 +47,9 @@ namespace lineage
   private:
 
     vertex_array(const lineage::vertex_array&) = delete;
+    vertex_array(lineage::vertex_array&&) = delete;
     lineage::vertex_array& operator =(const lineage::vertex_array&) = delete;
+    lineage::vertex_array& operator =(lineage::vertex_array&&) = delete;
 
     /* -- Public Methods -- */
 
@@ -82,7 +74,11 @@ namespace lineage
      * The relative offset from the beginning of the vertex record in the array to the beginning of
      * the data for this particular attribute.
      */
-    void set_attribute_format(GLuint attribute, size_t count, GLenum type, bool normalized, size_t relative_offset);
+    void set_attribute_format(GLuint attribute,
+                              size_t count,
+                              GLenum type,
+                              bool normalized,
+                              size_t relative_offset);
 
     /**
      * Configures the attribute with the specified location to pull data from the buffer bound to
@@ -117,7 +113,10 @@ namespace lineage
      * @param stride
      * The total size of each vertex record in the buffer, in bytes.
      */
-    void bind_buffer(GLuint binding_index, const lineage::buffer& buffer, size_t offset, size_t stride);
+    void bind_buffer(GLuint binding_index,
+                     const lineage::buffer& buffer,
+                     size_t offset,
+                     size_t stride);
 
     /**
      * Unbinds the currently bound buffer for the specified binding index.

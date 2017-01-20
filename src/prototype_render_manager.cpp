@@ -45,27 +45,38 @@ namespace
 {
 
   /** Creates the prototype shader program. */
-  shader_program create_prototype_shader_program()
+  std::unique_ptr<shader_program> create_prototype_shader_program()
   {
-    auto vertex_shader
-      = create_shader(GL_VERTEX_SHADER, shader_source_string(shader_source::prototype_vertex_shader));
-    auto fragment_shader
-      = create_shader(GL_FRAGMENT_SHADER, shader_source_string(shader_source::prototype_fragment_shader));
-    return create_shader_program({ &vertex_shader, &fragment_shader });
+    shader vertex_shader(GL_VERTEX_SHADER);
+    vertex_shader.set_source(shader_source_string(shader_source::prototype_vertex_shader));
+    vertex_shader.compile();
+
+    shader fragment_shader(GL_FRAGMENT_SHADER);
+    fragment_shader.set_source(shader_source_string(shader_source::prototype_fragment_shader));
+    fragment_shader.compile();
+
+    auto program = std::make_unique<shader_program>();
+    program->attach_shader(vertex_shader);
+    program->attach_shader(fragment_shader);
+    program->link();
+    program->detach_shader(vertex_shader);
+    program->detach_shader(fragment_shader);
+
+    return program;
   }
 
   /** Creates the data buffer for the renderer. */
-  immutable_buffer create_buffer()
+  std::unique_ptr<const immutable_buffer> create_buffer()
   {
-    return immutable_buffer(sizeof(VERTEX_DATA), VERTEX_DATA, 0);
+    return std::make_unique<immutable_buffer>(sizeof(VERTEX_DATA), VERTEX_DATA, 0);
   }
 
   /** Creates the vertex array object. */
-  vertex_array create_vertex_array(const shader_program& program)
+  std::unique_ptr<vertex_array> create_vertex_array(const std::unique_ptr<const shader_program>& program)
   {
-    vertex_array vao;
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_position", position_attribute_spec<vertex3x4>());
-    configure_attribute(vao, BINDING_INDEX, program, "vertex_color", color_attribute_spec<vertex3x4>());
+    auto vao = std::make_unique<vertex_array>();
+    configure_attribute(*vao, BINDING_INDEX, *program, "vertex_position", position_attribute_spec<vertex3x4>());
+    configure_attribute(*vao, BINDING_INDEX, *program, "vertex_color", color_attribute_spec<vertex3x4>());
     return vao;
   }
 
@@ -94,16 +105,16 @@ void prototype_render_manager::render(const render_args& args)
   glClear(GL_COLOR_BUFFER_BIT);
 
   // activate program
-  m_opengl.push_program(m_program);
+  m_opengl.push_program(*m_program);
   defer pop_program([&] { m_opengl.pop_program(); });
 
   // actviate vertex array
-  m_opengl.push_vertex_array(m_vao);
+  m_opengl.push_vertex_array(*m_vao);
   defer pop_vertex_array([&] { m_opengl.pop_vertex_array(); });
 
   // bind vertex buffer
-  m_vao.bind_buffer(BINDING_INDEX, m_buffer, 0, sizeof(vertex3x4));
-  defer unbind_buffer([&] { m_vao.unbind_buffer(BINDING_INDEX); });
+  m_vao->bind_buffer(BINDING_INDEX, *m_buffer, 0, sizeof(vertex3x4));
+  defer unbind_buffer([&] { m_vao->unbind_buffer(BINDING_INDEX); });
 
   // draw vertices
   glDrawArrays(GL_TRIANGLES, 0, array_size(VERTEX_DATA));

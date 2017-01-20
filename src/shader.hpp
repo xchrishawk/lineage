@@ -124,8 +124,8 @@ namespace lineage
 
     friend class lineage::shader_program;
 
-    GLenum m_type;
-    GLuint m_handle;
+    const GLenum m_type;
+    const GLuint m_handle;
 
   };
 

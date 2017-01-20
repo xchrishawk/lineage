@@ -64,7 +64,7 @@ namespace lineage
   private:
 
     struct implementation;
-    std::unique_ptr<implementation> impl;
+    const std::unique_ptr<implementation> impl;
 
   };
 

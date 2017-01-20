@@ -8,6 +8,8 @@
 
 /* -- Includes -- */
 
+#include <vector>
+
 #include "api.hpp"
 #include "opengl_error.hpp"
 
@@ -115,7 +117,7 @@ namespace lineage
 
     friend class vertex_array;
 
-    GLuint m_handle;
+    const GLuint m_handle;
 
   };
 
@@ -136,6 +138,20 @@ namespace lineage
     /**
      * Constructs a new `lineage::immutable_buffer` instance.
      *
+     * @param elements
+     * A vector containing the elements to include in the buffer.
+     *
+     * @param flags
+     * The storage flags for this buffer.
+     */
+    template <typename T>
+    immutable_buffer(const std::vector<T>& elements, GLbitfield flags)
+      : immutable_buffer(sizeof(T) * elements.size(), elements.data(), flags)
+    { }
+
+    /**
+     * Constructs a new `lineage::immutable_buffer` instance.
+     *
      * @param size
      * The size of the data buffer.
      *
@@ -144,9 +160,6 @@ namespace lineage
      *
      * @param flags
      * The storage flags for this buffer.
-     *
-     * @note
-     * This initializes the buffer using a call to `glNamedBufferStorage()`.
      */
     immutable_buffer(size_t size, const void* data, GLbitfield flags);
 

@@ -129,7 +129,7 @@ namespace lineage
 
     friend class opengl;
 
-    GLuint m_handle;
+    const GLuint m_handle;
 
   };
 

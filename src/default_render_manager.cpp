@@ -18,6 +18,7 @@
 #include "buffer.hpp"
 #include "default_render_manager.hpp"
 #include "default_state_manager.hpp"
+#include "mesh.hpp"
 #include "opengl.hpp"
 #include "render_manager.hpp"
 #include "shader.hpp"
@@ -37,10 +38,9 @@ using namespace lineage;
 namespace
 {
   // Uniform locations
-  const GLuint MESH_MATRIX_UNIFORM_LOCATION = 0;
-  const GLuint MODEL_MATRIX_UNIFORM_LOCATION = 1;
-  const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 2;
-  const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 3;
+  const GLuint MODEL_MATRIX_UNIFORM_LOCATION = 0;
+  const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 1;
+  const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 2;
 
   // Attribute locations
   const GLuint VERTEX_POSITION_ATTRIBUTE_LOCATION = 0;
@@ -61,11 +61,11 @@ struct default_render_manager::implementation
 
   /* -- Constructor -- */
 
-  implementation(lineage::opengl& opengl,
-                 const lineage::default_state_manager& state_manager)
+  implementation(lineage::opengl& opengl, const lineage::default_state_manager& state_manager)
     : opengl(opengl),
       state_manager(state_manager),
       program(implementation::create_shader_program()),
+      mesh(implementation::create_mesh()),
       vao(implementation::create_vertex_array<vertex334>())
   { }
 
@@ -73,8 +73,8 @@ struct default_render_manager::implementation
 
   lineage::opengl& opengl;
   const lineage::default_state_manager& state_manager;
-
   const std::unique_ptr<const lineage::shader_program> program;
+  const std::unique_ptr<const lineage::mesh<vertex334>> mesh;
   const std::unique_ptr<lineage::vertex_array> vao;
 
   /* -- Procedures -- */
@@ -111,6 +111,18 @@ struct default_render_manager::implementation
     glClear(GL_COLOR_BUFFER_BIT);
   }
 
+  /** Renders the specified mesh. */
+  template <typename TVertex>
+  void render_mesh(const lineage::mesh<TVertex>& mesh)
+  {
+    // bind vertex buffer
+    vao->bind_buffer(BINDING_INDEX, mesh.vertex_buffer(), 0, sizeof(TVertex));
+    defer unbind_buffer([&] { vao->unbind_buffer(BINDING_INDEX); });
+
+    // draw vertices
+    glDrawArrays(GL_TRIANGLES, 0, mesh.vertex_count());
+  }
+
   /** Creates the shader program for the renderer to be use. */
   static std::unique_ptr<shader_program> create_shader_program()
   {
@@ -130,6 +142,26 @@ struct default_render_manager::implementation
     program->detach_shader(fragment_shader);
 
     return program;
+  }
+
+  /** Creates the mesh to render. */
+  static std::unique_ptr<lineage::mesh<vertex334>> create_mesh()
+  {
+    static const std::vector<vertex334> VERTICES =
+    {
+      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+      { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
+      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
+      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
+      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
+    };
+    static const std::vector<GLuint> INDICES =
+    {
+      0, 1, 2,
+      3, 4, 5,
+    };
+    return std::make_unique<lineage::mesh<vertex334>>(VERTICES);
   }
 
   /** Creates the vertex array for the renderer to use. */
@@ -176,11 +208,15 @@ void default_render_manager::render(const render_args& args)
   defer pop_vertex_array([&] { impl->opengl.pop_vertex_array(); });
 
   // set common uniforms
+  impl->opengl.set_uniform(MODEL_MATRIX_UNIFORM_LOCATION, glm::mat4());
   impl->opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, impl->view_matrix());
   impl->opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, impl->proj_matrix(args));
 
   // initialize framebuffer
   impl->render_init(args);
+
+  // render mesh
+  impl->render_mesh(*impl->mesh);
 }
 
 double default_render_manager::target_delta_t() const

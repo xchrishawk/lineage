@@ -8,10 +8,9 @@
 
 /* -- Uniforms -- */
 
-layout (location = 0) uniform mat4 mesh_matrix;
-layout (location = 1) uniform mat4 model_matrix;
-layout (location = 2) uniform mat4 view_matrix;
-layout (location = 3) uniform mat4 proj_matrix;
+layout (location = 0) uniform mat4 model_matrix;
+layout (location = 1) uniform mat4 view_matrix;
+layout (location = 2) uniform mat4 proj_matrix;
 
 /* -- Inputs -- */
 
@@ -32,12 +31,7 @@ out VertexToFragmentInterface
 void main(void)
 {
   // set vertex position
-  gl_Position =
-    proj_matrix *
-    view_matrix *
-    model_matrix *
-    mesh_matrix *
-    vec4(vertex_position, 1.0);
+  gl_Position = proj_matrix * view_matrix * model_matrix * vec4(vertex_position, 1.0);
 
   // set outputs
   outblock.vertex_normal = vertex_normal;

@@ -37,8 +37,9 @@ namespace lineage
     /**
      * Constructs a new mesh with the specified parameters.
      */
-    mesh(const std::vector<TVertex>& vertices)
-      : m_vertex_buffer(vertices, 0),
+    mesh(GLenum type, const std::vector<TVertex>& vertices)
+      : m_type(type),
+        m_vertex_buffer(vertices, 0),
         m_vertex_count(vertices.size())
     { }
 
@@ -57,6 +58,14 @@ namespace lineage
     /* -- Public Methods -- */
 
   public:
+
+    /**
+     * The type of mesh being drawn.
+     */
+    GLenum type() const
+    {
+      return m_type;
+    }
 
     /**
      * The buffer containing the vertex data for this mesh.
@@ -78,6 +87,7 @@ namespace lineage
 
   private:
 
+    const GLenum m_type;
     const lineage::immutable_buffer m_vertex_buffer;
     const size_t m_vertex_count;
 

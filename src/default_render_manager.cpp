@@ -120,7 +120,7 @@ struct default_render_manager::implementation
     defer unbind_buffer([&] { vao->unbind_buffer(BINDING_INDEX); });
 
     // draw vertices
-    glDrawArrays(GL_TRIANGLES, 0, mesh.vertex_count());
+    glDrawArrays(mesh.type(), 0, mesh.vertex_count());
   }
 
   /** Creates the shader program for the renderer to be use. */
@@ -151,17 +151,10 @@ struct default_render_manager::implementation
     {
       { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f } },
       { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+      { { 0.5f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f } },
       { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f } },
-      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f } },
-      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f } },
-      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f } },
     };
-    static const std::vector<GLuint> INDICES =
-    {
-      0, 1, 2,
-      3, 4, 5,
-    };
-    return std::make_unique<lineage::mesh<vertex334>>(VERTICES);
+    return std::make_unique<lineage::mesh<vertex334>>(GL_TRIANGLE_FAN, VERTICES);
   }
 
   /** Creates the vertex array for the renderer to use. */

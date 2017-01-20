@@ -9,6 +9,7 @@
 /* -- Includes -- */
 
 #include <memory>
+#include <string>
 
 /* -- Types -- */
 

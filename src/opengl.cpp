@@ -6,6 +6,7 @@
 
 /* -- Includes -- */
 
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "api.hpp"
+#include "buffer.hpp"
 #include "debug.hpp"
 #include "opengl.hpp"
 #include "opengl_error.hpp"
@@ -33,6 +35,7 @@ struct opengl::implementation
 
   static opengl* s_instance;
 
+  std::map<GLenum, std::vector<GLuint>> buffers;
   std::vector<GLuint> programs;
   std::vector<GLuint> vertex_arrays;
 
@@ -126,6 +129,24 @@ void opengl::set_uniform(GLuint uniform, const glm::mat4& matrix)
                      1,				// count
                      GL_FALSE,			// transpose
                      glm::value_ptr(matrix));	// value
+}
+
+void opengl::push_buffer(GLenum target, const lineage::buffer& buffer)
+{
+  impl->buffers[target].push_back(buffer.m_handle);
+  glBindBuffer(target, buffer.m_handle);
+}
+
+void opengl::pop_buffer(GLenum target)
+{
+  auto& stack = impl->buffers[target];
+  if (stack.empty())
+  {
+    lineage_assert_fail("Attempted to pop buffer with no active buffer!");
+    return;
+  }
+  stack.pop_back();
+  glBindBuffer(target, stack.empty() ? 0 : stack.back());
 }
 
 void opengl::push_program(const shader_program& program)

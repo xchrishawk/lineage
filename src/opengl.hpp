@@ -18,6 +18,7 @@
 namespace lineage
 {
 
+  class buffer;
   class shader_program;
   class vertex_array;
 
@@ -84,6 +85,17 @@ namespace lineage
      * Sets the value of a 4x4 matrix uniform.
      */
     void set_uniform(GLuint location, const glm::mat4& matrix);
+
+    /**
+     * Pushes a buffer onto the stack for the specified binding point, making it active.
+     */
+    void push_buffer(GLenum target, const lineage::buffer& buffer);
+
+    /**
+     * Pops the active buffer off of the stack for the specified binding point, deactivating it and
+     * reactivating the previous buffer.
+     */
+    void pop_buffer(GLenum target);
 
     /**
      * Pushes a shader program onto the stack, making it active.

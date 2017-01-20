@@ -115,6 +115,7 @@ namespace lineage
 
   protected:
 
+    friend class opengl;
     friend class vertex_array;
 
     const GLuint m_handle;

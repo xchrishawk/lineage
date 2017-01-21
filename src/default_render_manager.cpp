@@ -21,6 +21,7 @@
 #include "mesh.hpp"
 #include "opengl.hpp"
 #include "render_manager.hpp"
+#include "scene_graph.hpp"
 #include "shader.hpp"
 #include "shader_program.hpp"
 #include "shader_source.hpp"
@@ -65,7 +66,6 @@ struct default_render_manager::implementation
     : opengl(opengl),
       state_manager(state_manager),
       program(implementation::create_shader_program()),
-      mesh(implementation::create_mesh()),
       vao(implementation::create_vertex_array<vertex>())
   { }
 
@@ -74,10 +74,19 @@ struct default_render_manager::implementation
   lineage::opengl& opengl;
   const lineage::default_state_manager& state_manager;
   const std::unique_ptr<const lineage::shader_program> program;
-  const std::unique_ptr<const lineage::mesh> mesh;
   const std::unique_ptr<lineage::vertex_array> vao;
 
   /* -- Procedures -- */
+
+  /** Create the model matrix to use for rendering a specific scene node. */
+  glm::mat4 model_matrix(const lineage::scene_node& node, const glm::mat4& model_matrix) const
+  {
+    return
+      glm::translate(node.position()) *
+      glm::mat4_cast(node.rotation()) *
+      glm::scale(node.scale()) *
+      model_matrix;
+  }
 
   /** Create the view matrix to use for rendering. */
   glm::mat4 view_matrix() const
@@ -91,7 +100,7 @@ struct default_render_manager::implementation
   /** Create the projection matrix to use for rendering. */
   glm::mat4 proj_matrix(const render_args& args) const
   {
-    float aspect_ratio =
+    auto aspect_ratio =
       static_cast<float>(args.framebuffer_width) /
       static_cast<float>(args.framebuffer_height);
     return glm::perspective(state_manager.camera_fov(),
@@ -111,6 +120,27 @@ struct default_render_manager::implementation
     glClear(GL_COLOR_BUFFER_BIT);
   }
 
+  /** Renders the specified scene node. */
+  void render_scene_node(const lineage::scene_graph& graph,
+                         const lineage::scene_node& node,
+                         const glm::mat4& parent_model_matrix)
+  {
+    // update the model matrix for this specific node
+    auto model_matrix = this->model_matrix(node, parent_model_matrix);
+    opengl.set_uniform(MODEL_MATRIX_UNIFORM_LOCATION, model_matrix);
+
+    // render all meshes for this node
+    for (const auto& mesh_index : node.meshes())
+    {
+      const auto& mesh = *graph.meshes()[mesh_index];
+      render_mesh(mesh);
+    }
+
+    // recursively render child nodes
+    for (const auto& child_node : node.children())
+      render_scene_node(graph, child_node, model_matrix);
+  }
+
   /** Renders the specified mesh. */
   void render_mesh(const lineage::mesh& mesh)
   {
@@ -122,7 +152,8 @@ struct default_render_manager::implementation
     defer unbind_element_buffer([&] { opengl.pop_buffer(GL_ELEMENT_ARRAY_BUFFER); });
 
     // draw vertices
-    glDrawElements(mesh.draw_mode(), mesh.index_count(), mesh.index_datatype(), (void*)0);
+    static const void* NO_OFFSET = reinterpret_cast<void*>(0);
+    glDrawElements(mesh.draw_mode(), mesh.index_count(), mesh.index_datatype(), NO_OFFSET);
   }
 
   /** Creates the shader program for the renderer to be use. */
@@ -144,23 +175,6 @@ struct default_render_manager::implementation
     program->detach_shader(fragment_shader);
 
     return program;
-  }
-
-  /** Creates the mesh to render. */
-  static std::unique_ptr<lineage::mesh> create_mesh()
-  {
-    static const std::vector<vertex> VERTICES =
-    {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f }, { } },
-      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f }, { } },
-      { { 0.5f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f }, { } },
-      { { 0.0f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f }, { } },
-    };
-    static const std::vector<GLuint> INDICES =
-    {
-      0, 1, 2, 3,
-    };
-    return std::make_unique<lineage::mesh>(GL_TRIANGLE_FAN, VERTICES, INDICES);
   }
 
   /** Creates the vertex array for the renderer to use. */
@@ -207,15 +221,17 @@ void default_render_manager::render(const render_args& args)
   defer pop_vertex_array([&] { impl->opengl.pop_vertex_array(); });
 
   // set common uniforms
-  impl->opengl.set_uniform(MODEL_MATRIX_UNIFORM_LOCATION, glm::mat4());
   impl->opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, impl->view_matrix());
   impl->opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, impl->proj_matrix(args));
 
   // initialize framebuffer
   impl->render_init(args);
 
-  // render mesh
-  impl->render_mesh(*impl->mesh);
+  // recursively render nodes
+  glm::mat4 model_matrix = glm::mat4();
+  const auto& graph = impl->state_manager.scene_graph();
+  for (const auto& node : graph.nodes())
+    impl->render_scene_node(graph, node, model_matrix);
 }
 
 double default_render_manager::target_delta_t() const

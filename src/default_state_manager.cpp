@@ -13,8 +13,11 @@
 
 #include "default_state_manager.hpp"
 #include "input_manager.hpp"
+#include "mesh.hpp"
+#include "scene_graph.hpp"
 #include "state_manager.hpp"
 #include "util.hpp"
+#include "vertex.hpp"
 
 /* -- Namespaces -- */
 
@@ -51,6 +54,7 @@ struct default_state_manager::implementation
 
   implementation(const lineage::input_manager& input_manager)
     : input_manager(input_manager),
+      scene_graph(create_scene_graph()),
       camera_position(DEFAULT_CAMERA_POSITION),
       camera_rotation(DEFAULT_CAMERA_ROTATION),
       camera_fov(DEFAULT_CAMERA_FOV),
@@ -61,6 +65,7 @@ struct default_state_manager::implementation
   /* -- Fields -- */
 
   const lineage::input_manager& input_manager;
+  const lineage::scene_graph scene_graph;
   glm::vec3 camera_position;
   glm::quat camera_rotation;
   float camera_fov;
@@ -156,6 +161,45 @@ struct default_state_manager::implementation
     return (input_manager.input_state(type) == input_state::active);
   }
 
+  /** Builds the scene graph to display. */
+  static lineage::scene_graph create_scene_graph()
+  {
+    // first mesh
+    static const GLenum MESH_1_DRAW_MODE = GL_TRIANGLE_FAN;
+    static const std::vector<vertex> MESH_1_VERTICES =
+    {
+      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f }, { } },
+      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f }, { } },
+      { { 0.5f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f }, { } },
+      { { 0.0f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f }, { } },
+    };
+    static const std::vector<GLuint> MESH_1_INDICES = { 0, 1, 2, 3 };
+
+    // second mesh
+    static const GLenum MESH_2_DRAW_MODE = GL_TRIANGLES;
+    static const std::vector<vertex> MESH_2_VERTICES =
+    {
+      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f }, { } },
+      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f }, { } },
+      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f }, { } },
+    };
+    static const std::vector<GLuint> MESH_2_INDICES = { 0, 1, 2 };
+
+    lineage::scene_graph graph;
+    graph.meshes().emplace_back(std::make_unique<mesh>(MESH_1_DRAW_MODE, MESH_1_VERTICES, MESH_1_INDICES));
+    graph.meshes().emplace_back(std::make_unique<mesh>(MESH_2_DRAW_MODE, MESH_2_VERTICES, MESH_2_INDICES));
+
+    scene_node node1;
+    node1.meshes().push_back(0);
+    graph.nodes().push_back(std::move(node1));
+
+    scene_node node2;
+    node2.meshes().push_back(1);
+    graph.nodes().push_back(std::move(node2));
+
+    return graph;
+  }
+
 };
 
 /* -- Procedures -- */
@@ -167,12 +211,17 @@ default_state_manager::default_state_manager(const input_manager& input_manager)
 
 default_state_manager::~default_state_manager() = default;
 
-const glm::vec3& default_state_manager::camera_position() const
+const lineage::scene_graph& default_state_manager::scene_graph() const
+{
+  return impl->scene_graph;
+}
+
+glm::vec3 default_state_manager::camera_position() const
 {
   return impl->camera_position;
 }
 
-const glm::quat& default_state_manager::camera_rotation() const
+glm::quat default_state_manager::camera_rotation() const
 {
   return impl->camera_rotation;
 }

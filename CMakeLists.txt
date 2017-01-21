@@ -40,6 +40,8 @@ set(MAIN_TARGET_SOURCES
   ${SOURCE_DIR}/opengl_error.cpp
   ${SOURCE_DIR}/prototype_render_manager.cpp
   ${SOURCE_DIR}/prototype_state_manager.cpp
+  ${SOURCE_DIR}/scene_graph.cpp
+  ${SOURCE_DIR}/scene_node.cpp
   ${SOURCE_DIR}/shader.cpp
   ${SOURCE_DIR}/shader_program.cpp
   ${SOURCE_DIR}/shader_source.cpp

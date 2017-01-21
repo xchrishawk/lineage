@@ -19,6 +19,8 @@
 namespace lineage
 {
 
+  class scene_graph;
+
   /**
    * Default application state manager object.
    */
@@ -54,14 +56,19 @@ namespace lineage
   public:
 
     /**
+     * The scene graph which should be rendered.
+     */
+    const lineage::scene_graph& scene_graph() const;
+
+    /**
      * The current camera position.
      */
-    const glm::vec3& camera_position() const;
+    glm::vec3 camera_position() const;
 
     /**
      * The current camera rotation.
      */
-    const glm::quat& camera_rotation() const;
+    glm::quat camera_rotation() const;
 
     /**
      * The current camera field of view in the Y axis, in radians.

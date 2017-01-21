@@ -11,12 +11,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "constants.hpp"
 #include "default_state_manager.hpp"
 #include "input_manager.hpp"
 #include "mesh.hpp"
 #include "scene_graph.hpp"
 #include "state_manager.hpp"
-#include "util.hpp"
 #include "vertex.hpp"
 
 /* -- Namespaces -- */
@@ -168,10 +168,10 @@ struct default_state_manager::implementation
     static const GLenum MESH_1_DRAW_MODE = GL_TRIANGLE_FAN;
     static const std::vector<vertex> MESH_1_VERTICES =
     {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 0.0f, 1.0f }, { } },
-      { { 0.5f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 0.0f, 1.0f }, { } },
-      { { 0.5f, 0.5f, 0.0f }, { }, { 0.0f, 0.0f, 1.0f, 1.0f }, { } },
-      { { 0.0f, 0.5f, 0.0f }, { }, { 1.0f, 1.0f, 1.0f, 1.0f }, { } },
+      { { 0.0f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_RED, VEC2_ZERO },
+      { { 0.5f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_BLUE, VEC2_ZERO },
+      { { 0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_GREEN, VEC2_ZERO },
+      { { 0.0f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLACK, VEC2_ZERO },
     };
     static const std::vector<GLuint> MESH_1_INDICES = { 0, 1, 2, 3 };
 
@@ -179,9 +179,9 @@ struct default_state_manager::implementation
     static const GLenum MESH_2_DRAW_MODE = GL_TRIANGLES;
     static const std::vector<vertex> MESH_2_VERTICES =
     {
-      { { 0.0f, 0.0f, 0.0f }, { }, { 0.0f, 1.0f, 1.0f, 1.0f }, { } },
-      { { -0.5f, 0.0f, 0.0f }, { }, { 1.0f, 0.0f, 1.0f, 1.0f }, { } },
-      { { 0.0f, -0.5f, 0.0f }, { }, { 1.0f, 1.0f, 0.0f, 1.0f }, { } },
+      { { 0.0f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_CYAN, VEC2_ZERO },
+      { { -0.5f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_MAGENTA, VEC2_ZERO },
+      { { 0.0f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_YELLOW, VEC2_ZERO },
     };
     static const std::vector<GLuint> MESH_2_INDICES = { 0, 1, 2 };
 

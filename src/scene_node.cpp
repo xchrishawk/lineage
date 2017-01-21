@@ -10,8 +10,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "constants.hpp"
 #include "scene_node.hpp"
-#include "util.hpp"
 
 /* -- Namespaces -- */
 
@@ -22,8 +22,8 @@ using namespace lineage;
 scene_node::scene_node()
   : m_meshes(),
     m_children(),
-    m_position(POSITION_ZERO),
-    m_rotation(ROTATION_ZERO),
+    m_position(POSITION_NONE),
+    m_rotation(ROTATION_NONE),
     m_scale(SCALE_NONE)
 {
 }

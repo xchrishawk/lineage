@@ -12,34 +12,6 @@
 #include <cmath>
 #include <functional>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
-/* -- Constants -- */
-
-namespace lineage
-{
-
-  /** `glm::vec3` representing a unit vector in the X direction. */
-  extern const glm::vec3 VEC3_UNIT_X;
-
-  /** `glm::vec3` representing a unit vector in the Y direction. */
-  extern const glm::vec3 VEC3_UNIT_Y;
-
-  /** `glm::vec3` representing a unit vector in the Z direction. */
-  extern const glm::vec3 VEC3_UNIT_Z;
-
-  /** `glm::vec3` representing a position at the origin. */
-  extern const glm::vec3 POSITION_ZERO;
-
-  /** `glm::quat` representing no rotation. */
-  extern const glm::quat ROTATION_ZERO;
-
-  /** `glm::vec3` representing no scaling. */
-  extern const glm::vec3 SCALE_NONE;
-
-}
-
 /* -- Types -- */
 
 namespace lineage

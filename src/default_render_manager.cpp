@@ -67,7 +67,11 @@ struct default_render_manager::implementation
       state_manager(state_manager),
       program(implementation::create_shader_program()),
       vao(implementation::create_vertex_array<vertex>())
-  { }
+  {
+    // one-time setup
+    enable_depth_testing();
+    enable_face_culling();
+  }
 
   /* -- Fields -- */
 
@@ -77,6 +81,21 @@ struct default_render_manager::implementation
   const std::unique_ptr<lineage::vertex_array> vao;
 
   /* -- Procedures -- */
+
+  /** Enables depth testing. */
+  void enable_depth_testing()
+  {
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+  }
+
+  /** Enables face culling. */
+  void enable_face_culling()
+  {
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+  }
 
   /** Create the model matrix to use for rendering a specific scene node. */
   glm::mat4 model_matrix(const lineage::scene_node& node, const glm::mat4& model_matrix) const
@@ -112,10 +131,6 @@ struct default_render_manager::implementation
   /** Initialize the framebuffer for rendering. */
   void render_init(const render_args& args)
   {
-    // configure depth test
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
     // set viewport
     glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
 

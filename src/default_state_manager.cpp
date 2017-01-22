@@ -16,6 +16,7 @@
 #include "default_state_manager.hpp"
 #include "input_manager.hpp"
 #include "mesh.hpp"
+#include "scene_builder.hpp"
 #include "scene_graph.hpp"
 #include "state_manager.hpp"
 #include "vertex.hpp"
@@ -81,7 +82,7 @@ struct default_state_manager::implementation : public input_observer
 
   implementation(const lineage::input_manager& input_manager)
     : input_manager(input_manager),
-      scene_graph(create_scene_graph()),
+      scene_graph(create_multiple_cubes_scene_graph()),
       mode(input_mode::camera),
       camera_position(DEFAULT_CAMERA_POSITION),
       camera_rotation(DEFAULT_CAMERA_ROTATION),
@@ -145,7 +146,7 @@ struct default_state_manager::implementation : public input_observer
       switch (mode)
       {
       case input_mode::object:
-        selected_node_index = (selected_node_index + 1 % scene_graph.nodes().size());
+        selected_node_index = ((selected_node_index + 1) % scene_graph.nodes().size());
         break;
       default:
         break;
@@ -305,64 +306,6 @@ struct default_state_manager::implementation : public input_observer
   bool input_active(input_type type)
   {
     return (input_manager.input_state(type) == input_state::active);
-  }
-
-  /** Builds the scene graph to display. */
-  static lineage::scene_graph create_scene_graph()
-  {
-    static const GLenum SQUARE_DRAW_MODE = GL_TRIANGLE_FAN;
-    static const std::vector<vertex> SQUARE_VERTICES =
-    {
-      { { -0.5f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_RED, VEC2_ZERO },
-      { { 0.5f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_GREEN, VEC2_ZERO },
-      { { 0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLUE, VEC2_ZERO },
-      { { -0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLACK, VEC2_ZERO }
-    };
-    static const std::vector<GLuint> SQUARE_INDICES = { 0, 1, 2, 3 };
-
-    scene_node front_face;
-    front_face.meshes().push_back(0);
-    front_face.set_position(glm::vec3(0.0f, 0.0f, 0.5f));
-    front_face.set_rotation(ROTATION_NONE);
-
-    scene_node back_face;
-    back_face.meshes().push_back(0);
-    back_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(180.0f), VEC3_UNIT_Y));
-    back_face.set_position(glm::vec3(0.0f, 0.0f, -0.5f));
-
-    scene_node left_face;
-    left_face.meshes().push_back(0);
-    left_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(-90.0f), VEC3_UNIT_Y));
-    left_face.set_position(glm::vec3(-0.5f, 0.0f, 0.0f));
-
-    scene_node right_face;
-    right_face.meshes().push_back(0);
-    right_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(90.0f), VEC3_UNIT_Y));
-    right_face.set_position(glm::vec3(0.5f, 0.0f, 0.0f));
-
-    scene_node top_face;
-    top_face.meshes().push_back(0);
-    top_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(-90.0f), VEC3_UNIT_X));
-    top_face.set_position(glm::vec3(0.0f, 0.5f, 0.0f));
-
-    scene_node bottom_face;
-    bottom_face.meshes().push_back(0);
-    bottom_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(90.0f), VEC3_UNIT_X));
-    bottom_face.set_position(glm::vec3(0.0f, -0.5f, 0.0f));
-
-    scene_node cube_node;
-    cube_node.children().push_back(front_face);
-    cube_node.children().push_back(back_face);
-    cube_node.children().push_back(left_face);
-    cube_node.children().push_back(right_face);
-    cube_node.children().push_back(top_face);
-    cube_node.children().push_back(bottom_face);
-
-    lineage::scene_graph graph;
-    graph.meshes().emplace_back(std::make_unique<mesh>(SQUARE_DRAW_MODE, SQUARE_VERTICES, SQUARE_INDICES));
-    graph.nodes().push_back(cube_node);
-
-    return graph;
   }
 
 };

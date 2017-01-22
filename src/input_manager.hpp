@@ -27,6 +27,7 @@ namespace lineage
     mode_camera,
     mode_background,
     mode_object,
+    mode_ambient_light,
     generic_reset,
     generic_cycle,
     generic_translate_right,
@@ -49,6 +50,8 @@ namespace lineage
     generic_color_blue_decrease,
     camera_fov_increase,
     camera_fov_decrease,
+    lighting_intensity_increase,
+    lighting_intensity_decrease,
   };
 
   /**

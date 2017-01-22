@@ -42,6 +42,8 @@ namespace
   const GLuint MODEL_MATRIX_UNIFORM_LOCATION = 0;
   const GLuint VIEW_MATRIX_UNIFORM_LOCATION = 1;
   const GLuint PROJ_MATRIX_UNIFORM_LOCATION = 2;
+  const GLuint AMBIENT_LIGHT_COLOR_UNIFORM_LOCATION = 3;
+  const GLuint AMBIENT_LIGHT_INTENSITY_UNIFORM_LOCATION = 4;
 
   // Attribute locations
   const GLuint VERTEX_POSITION_ATTRIBUTE_LOCATION = 0;
@@ -246,6 +248,8 @@ void default_render_manager::render(const render_args& args)
   // set common uniforms
   impl->opengl.set_uniform(VIEW_MATRIX_UNIFORM_LOCATION, impl->view_matrix());
   impl->opengl.set_uniform(PROJ_MATRIX_UNIFORM_LOCATION, impl->proj_matrix(args));
+  impl->opengl.set_uniform(AMBIENT_LIGHT_COLOR_UNIFORM_LOCATION, impl->state_manager.ambient_light_color());
+  impl->opengl.set_uniform(AMBIENT_LIGHT_INTENSITY_UNIFORM_LOCATION, impl->state_manager.ambient_light_intensity());
 
   // initialize framebuffer
   impl->render_init(args);

@@ -52,6 +52,7 @@ struct input_manager::implementation
       case GLFW_KEY_F1:			return input_type::mode_camera;
       case GLFW_KEY_F2:			return input_type::mode_background;
       case GLFW_KEY_F3:			return input_type::mode_object;
+      case GLFW_KEY_F4:			return input_type::mode_ambient_light;
       case GLFW_KEY_X:			return input_type::generic_reset;
       case GLFW_KEY_TAB:		return input_type::generic_cycle;
       case GLFW_KEY_D:			return input_type::generic_translate_right;
@@ -68,6 +69,8 @@ struct input_manager::implementation
       case GLFW_KEY_L:			return input_type::generic_color_blue_decrease;
       case GLFW_KEY_LEFT_BRACKET:	return input_type::camera_fov_decrease;
       case GLFW_KEY_RIGHT_BRACKET:	return input_type::camera_fov_increase;
+      case GLFW_KEY_Y:			return input_type::lighting_intensity_increase;
+      case GLFW_KEY_H:			return input_type::lighting_intensity_decrease;
       default:      			return input_type::invalid;
       }
 

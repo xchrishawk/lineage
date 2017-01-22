@@ -4,6 +4,12 @@
  */
 
 #version 330 core
+#extension GL_ARB_explicit_uniform_location : require
+
+/* -- Uniforms -- */
+
+layout (location = 3) uniform vec4 ambient_light_color;
+layout (location = 4) uniform float ambient_light_intensity;
 
 /* -- Inputs -- */
 
@@ -21,5 +27,6 @@ out vec4 fragment_color;
 
 void main(void)
 {
-  fragment_color = inblock.vertex_color;
+  vec4 ambient_light = ambient_light_color * ambient_light_intensity;
+  fragment_color = inblock.vertex_color * ambient_light;
 }

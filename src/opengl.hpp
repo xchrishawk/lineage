@@ -82,9 +82,19 @@ namespace lineage
     bool is_supported(const std::string& extension) const;
 
     /**
+     * Sets the value of a float uniform.
+     */
+    void set_uniform(GLuint location, float value);
+
+    /**
+     * Sets the value of a 4-dimensional vector uniform.
+     */
+    void set_uniform(GLuint location, const glm::vec4& value);
+
+    /**
      * Sets the value of a 4x4 matrix uniform.
      */
-    void set_uniform(GLuint location, const glm::mat4& matrix);
+    void set_uniform(GLuint location, const glm::mat4& value);
 
     /**
      * Pushes a buffer onto the stack for the specified binding point, making it active.

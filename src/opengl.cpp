@@ -123,12 +123,22 @@ bool opengl::is_supported(const std::string& extension) const
   return (glewIsSupported(extension.c_str()) == GL_TRUE);
 }
 
-void opengl::set_uniform(GLuint uniform, const glm::mat4& matrix)
+void opengl::set_uniform(GLuint location, float value)
 {
-  glUniformMatrix4fv(uniform,			// location
+  glUniform1f(location, value);
+}
+
+void opengl::set_uniform(GLuint location, const glm::vec4& value)
+{
+  glUniform4fv(location, 1, glm::value_ptr(value));
+}
+
+void opengl::set_uniform(GLuint location, const glm::mat4& value)
+{
+  glUniformMatrix4fv(location,			// location
                      1,				// count
                      GL_FALSE,			// transpose
-                     glm::value_ptr(matrix));	// value
+                     glm::value_ptr(value));	// value
 }
 
 void opengl::push_buffer(GLenum target, const lineage::buffer& buffer)

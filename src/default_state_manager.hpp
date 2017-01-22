@@ -90,6 +90,16 @@ namespace lineage
      */
     glm::vec4 background_color() const;
 
+    /**
+     * The ambient lighting color.
+     */
+    glm::vec4 ambient_light_color() const;
+
+    /**
+     * The ambient lighting intensity.
+     */
+    float ambient_light_intensity() const;
+
     /* -- `lineage::state_manager` Implementation -- */
 
   public:

@@ -70,7 +70,7 @@ struct default_render_manager::implementation
   {
     // one-time setup
     enable_depth_testing();
-    enable_face_culling();
+    // enable_face_culling();
   }
 
   /* -- Fields -- */

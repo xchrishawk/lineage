@@ -51,7 +51,9 @@ struct input_manager::implementation
       case GLFW_KEY_ESCAPE:		return input_type::application_exit;
       case GLFW_KEY_F1:			return input_type::mode_camera;
       case GLFW_KEY_F2:			return input_type::mode_background;
+      case GLFW_KEY_F3:			return input_type::mode_object;
       case GLFW_KEY_X:			return input_type::generic_reset;
+      case GLFW_KEY_TAB:		return input_type::generic_cycle;
       case GLFW_KEY_D:			return input_type::generic_translate_right;
       case GLFW_KEY_A:			return input_type::generic_translate_left;
       case GLFW_KEY_R:			return input_type::generic_translate_up;

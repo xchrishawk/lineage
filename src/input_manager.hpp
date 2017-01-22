@@ -28,6 +28,7 @@ namespace lineage
     mode_background,
     mode_object,
     generic_reset,
+    generic_cycle,
     generic_translate_right,
     generic_translate_left,
     generic_translate_up,

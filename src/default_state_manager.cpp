@@ -51,6 +51,8 @@ namespace
   const float RATE_CAMERA_ROTATION { deg_to_rad(90.0f) };
   const float RATE_CAMERA_FOV { deg_to_rad(45.0f) };
   const float RATE_COLOR_COMPONENT { 0.5f };
+  const float RATE_OBJECT_POSITION { 1.0f };
+  const float RATE_OBJECT_ROTATION { deg_to_rad(45.0f) };
 
 }
 
@@ -99,7 +101,7 @@ struct default_state_manager::implementation : public input_observer
   /* -- Fields -- */
 
   const lineage::input_manager& input_manager;
-  const lineage::scene_graph scene_graph;
+  lineage::scene_graph scene_graph;
 
   input_mode mode;
 
@@ -110,6 +112,8 @@ struct default_state_manager::implementation : public input_observer
   float camera_clip_far;
 
   glm::vec4 background_color;
+
+  size_t selected_node_index;
 
   /* -- `lineage::input_observer` Implementation -- */
 
@@ -132,8 +136,20 @@ struct default_state_manager::implementation : public input_observer
       break;
 
     case input_type::mode_object:
+      selected_node_index = 0;
       mode = input_mode::object;
       lineage_log_status("Input mode set to input_mode::object.");
+      break;
+
+    case input_type::generic_cycle:
+      switch (mode)
+      {
+      case input_mode::object:
+        selected_node_index = (selected_node_index + 1 % scene_graph.nodes().size());
+        break;
+      default:
+        break;
+      }
       break;
 
     default:
@@ -162,26 +178,7 @@ struct default_state_manager::implementation : public input_observer
       camera_rotation = DEFAULT_CAMERA_ROTATION;
       return;
     }
-
-    const float delta = RATE_CAMERA_ROTATION * args.delta_t;
-
-    // pitch
-    if (input_active(input_type::generic_rotate_pitch_up))
-      camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_X);
-    if (input_active(input_type::generic_rotate_pitch_down))
-      camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_X);
-
-    // roll
-    if (input_active(input_type::generic_rotate_roll_right))
-      camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_Z);
-    if (input_active(input_type::generic_rotate_roll_left))
-      camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_Z);
-
-    // yaw
-    if (input_active(input_type::generic_rotate_yaw_right))
-      camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_Y);
-    if (input_active(input_type::generic_rotate_yaw_left))
-      camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_Y);
+    camera_rotation = rotate(camera_rotation, RATE_CAMERA_ROTATION * args.delta_t);
   }
 
   /** Updates the camera field of view. */
@@ -237,6 +234,21 @@ struct default_state_manager::implementation : public input_observer
     clamp(background_color.b, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
   }
 
+  /** Updates the position of the selected object. */
+  void update_object_position(const state_args& args)
+  {
+    auto& node = scene_graph.nodes()[selected_node_index];
+    glm::vec3 position = translate(node.position(), RATE_OBJECT_POSITION * args.delta_t, node.rotation());
+    node.set_position(position);
+  }
+
+  void update_object_rotation(const state_args& args)
+  {
+    auto& node = scene_graph.nodes()[selected_node_index];
+    glm::quat rotation = rotate(node.rotation(), RATE_OBJECT_ROTATION * args.delta_t);
+    node.set_rotation(rotation);
+  }
+
   /** Translates a position. */
   glm::vec3 translate(const glm::vec3& position, float delta, const glm::quat& rotation)
   {
@@ -261,6 +273,32 @@ struct default_state_manager::implementation : public input_observer
       translation.z += delta;
 
     return position + (glm::mat3_cast(rotation) * translation);
+  }
+
+  /** Rotates a quaternion. */
+  glm::quat rotate(const glm::quat& rotation, float delta)
+  {
+    glm::quat ret = rotation;
+
+    // pitch
+    if (input_active(input_type::generic_rotate_pitch_up))
+      ret = glm::rotate(ret, delta, VEC3_UNIT_X);
+    if (input_active(input_type::generic_rotate_pitch_down))
+      ret = glm::rotate(ret, -delta, VEC3_UNIT_X);
+
+    // roll
+    if (input_active(input_type::generic_rotate_roll_right))
+      ret = glm::rotate(ret, -delta, VEC3_UNIT_Z);
+    if (input_active(input_type::generic_rotate_roll_left))
+      ret = glm::rotate(ret, delta, VEC3_UNIT_Z);
+
+    // yaw
+    if (input_active(input_type::generic_rotate_yaw_right))
+      ret = glm::rotate(ret, -delta, VEC3_UNIT_Y);
+    if (input_active(input_type::generic_rotate_yaw_left))
+      ret = glm::rotate(ret, delta, VEC3_UNIT_Y);
+
+    return ret;
   }
 
   /** Returns `true` if the specified input is active. */
@@ -384,6 +422,13 @@ void default_state_manager::run(const state_args& args)
   else if (impl->mode == input_mode::background)
   {
     impl->update_background_color(args);
+  }
+  else if (impl->mode == input_mode::object)
+  {
+    if (impl->selected_node_index >= impl->scene_graph.nodes().size())
+      return;
+    impl->update_object_position(args);
+    impl->update_object_rotation(args);
   }
 }
 

@@ -52,18 +52,18 @@ struct input_manager::implementation
       case GLFW_KEY_F1:			return input_type::mode_camera;
       case GLFW_KEY_F2:			return input_type::mode_background;
       case GLFW_KEY_X:			return input_type::generic_reset;
+      case GLFW_KEY_D:			return input_type::generic_translate_right;
+      case GLFW_KEY_A:			return input_type::generic_translate_left;
+      case GLFW_KEY_R:			return input_type::generic_translate_up;
+      case GLFW_KEY_F:			return input_type::generic_translate_down;
+      case GLFW_KEY_W:			return input_type::generic_translate_forward;
+      case GLFW_KEY_S:			return input_type::generic_translate_backward;
       case GLFW_KEY_U:			return input_type::generic_color_red_increase;
       case GLFW_KEY_J:			return input_type::generic_color_red_decrease;
       case GLFW_KEY_I:			return input_type::generic_color_green_increase;
       case GLFW_KEY_K:			return input_type::generic_color_green_decrease;
       case GLFW_KEY_O:			return input_type::generic_color_blue_increase;
       case GLFW_KEY_L:			return input_type::generic_color_blue_decrease;
-      case GLFW_KEY_D:			return input_type::camera_translation_right;
-      case GLFW_KEY_A:			return input_type::camera_translation_left;
-      case GLFW_KEY_R:			return input_type::camera_translation_up;
-      case GLFW_KEY_F:			return input_type::camera_translation_down;
-      case GLFW_KEY_W:			return input_type::camera_translation_forward;
-      case GLFW_KEY_S:			return input_type::camera_translation_backward;
       case GLFW_KEY_LEFT_BRACKET:	return input_type::camera_fov_decrease;
       case GLFW_KEY_RIGHT_BRACKET:	return input_type::camera_fov_increase;
       default:      			return input_type::invalid;
@@ -72,12 +72,12 @@ struct input_manager::implementation
     case GLFW_MOD_SHIFT:
       switch (key)
       {
-      case GLFW_KEY_W:			return input_type::camera_rotation_pitch_down;
-      case GLFW_KEY_S:			return input_type::camera_rotation_pitch_up;
-      case GLFW_KEY_D:			return input_type::camera_rotation_yaw_right;
-      case GLFW_KEY_A:			return input_type::camera_rotation_yaw_left;
-      case GLFW_KEY_E:			return input_type::camera_rotation_roll_right;
-      case GLFW_KEY_Q:			return input_type::camera_rotation_roll_left;
+      case GLFW_KEY_W:			return input_type::generic_rotate_pitch_down;
+      case GLFW_KEY_S:			return input_type::generic_rotate_pitch_up;
+      case GLFW_KEY_D:			return input_type::generic_rotate_yaw_right;
+      case GLFW_KEY_A:			return input_type::generic_rotate_yaw_left;
+      case GLFW_KEY_E:			return input_type::generic_rotate_roll_right;
+      case GLFW_KEY_Q:			return input_type::generic_rotate_roll_left;
       }
 
     default:

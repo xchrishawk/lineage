@@ -64,6 +64,7 @@ namespace
   {
     camera,
     background,
+    object,
   };
 
 }
@@ -130,6 +131,11 @@ struct default_state_manager::implementation : public input_observer
       lineage_log_status("Input mode set to input_mode::background.");
       break;
 
+    case input_type::mode_object:
+      mode = input_mode::object;
+      lineage_log_status("Input mode set to input_mode::object.");
+      break;
+
     default:
       break;
     }
@@ -145,30 +151,7 @@ struct default_state_manager::implementation : public input_observer
       camera_position = DEFAULT_CAMERA_POSITION;
       return;
     }
-
-    const float delta = RATE_CAMERA_POSITION * args.delta_t;
-
-    glm::vec3 translation(0.0f);
-
-    // right/left
-    if (input_active(input_type::camera_translation_right))
-      translation.x += delta;
-    if (input_active(input_type::camera_translation_left))
-      translation.x -= delta;
-
-    // up/down
-    if (input_active(input_type::camera_translation_up))
-      translation.y += delta;
-    if (input_active(input_type::camera_translation_down))
-      translation.y -= delta;
-
-    // forward/backward
-    if (input_active(input_type::camera_translation_forward))
-      translation.z -= delta;
-    if (input_active(input_type::camera_translation_backward))
-      translation.z += delta;
-
-    camera_position += glm::mat3_cast(camera_rotation) * translation;
+    camera_position = translate(camera_position, RATE_CAMERA_POSITION * args.delta_t, camera_rotation);
   }
 
   /** Updates the camera rotation. */
@@ -183,21 +166,21 @@ struct default_state_manager::implementation : public input_observer
     const float delta = RATE_CAMERA_ROTATION * args.delta_t;
 
     // pitch
-    if (input_active(input_type::camera_rotation_pitch_up))
+    if (input_active(input_type::generic_rotate_pitch_up))
       camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_X);
-    if (input_active(input_type::camera_rotation_pitch_down))
+    if (input_active(input_type::generic_rotate_pitch_down))
       camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_X);
 
     // roll
-    if (input_active(input_type::camera_rotation_roll_right))
+    if (input_active(input_type::generic_rotate_roll_right))
       camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_Z);
-    if (input_active(input_type::camera_rotation_roll_left))
+    if (input_active(input_type::generic_rotate_roll_left))
       camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_Z);
 
     // yaw
-    if (input_active(input_type::camera_rotation_yaw_right))
+    if (input_active(input_type::generic_rotate_yaw_right))
       camera_rotation = glm::rotate(camera_rotation, -delta, VEC3_UNIT_Y);
-    if (input_active(input_type::camera_rotation_yaw_left))
+    if (input_active(input_type::generic_rotate_yaw_left))
       camera_rotation = glm::rotate(camera_rotation, delta, VEC3_UNIT_Y);
   }
 
@@ -252,6 +235,32 @@ struct default_state_manager::implementation : public input_observer
     clamp(background_color.r, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
     clamp(background_color.g, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
     clamp(background_color.b, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
+  }
+
+  /** Translates a position. */
+  glm::vec3 translate(const glm::vec3& position, float delta, const glm::quat& rotation)
+  {
+    glm::vec3 translation(0.0f);
+
+    // right/left
+    if (input_active(input_type::generic_translate_right))
+      translation.x += delta;
+    if (input_active(input_type::generic_translate_left))
+      translation.x -= delta;
+
+    // up/down
+    if (input_active(input_type::generic_translate_up))
+      translation.y += delta;
+    if (input_active(input_type::generic_translate_down))
+      translation.y -= delta;
+
+    // forward/backward
+    if (input_active(input_type::generic_translate_forward))
+      translation.z -= delta;
+    if (input_active(input_type::generic_translate_backward))
+      translation.z += delta;
+
+    return position + (glm::mat3_cast(rotation) * translation);
   }
 
   /** Returns `true` if the specified input is active. */
@@ -312,8 +321,8 @@ struct default_state_manager::implementation : public input_observer
     cube_node.children().push_back(bottom_face);
 
     lineage::scene_graph graph;
-   graph.meshes().emplace_back(std::make_unique<mesh>(SQUARE_DRAW_MODE, SQUARE_VERTICES, SQUARE_INDICES));
-   graph.nodes().push_back(cube_node);
+    graph.meshes().emplace_back(std::make_unique<mesh>(SQUARE_DRAW_MODE, SQUARE_VERTICES, SQUARE_INDICES));
+    graph.nodes().push_back(cube_node);
 
     return graph;
   }

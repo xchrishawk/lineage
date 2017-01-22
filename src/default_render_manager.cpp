@@ -100,11 +100,10 @@ struct default_render_manager::implementation
   /** Create the model matrix to use for rendering a specific scene node. */
   glm::mat4 model_matrix(const lineage::scene_node& node, const glm::mat4& model_matrix) const
   {
-    return
+    return model_matrix *
       glm::translate(node.position()) *
-      glm::mat4_cast(node.rotation()) *
       glm::scale(node.scale()) *
-      model_matrix;
+      glm::mat4_cast(node.rotation());
   }
 
   /** Create the view matrix to use for rendering. */

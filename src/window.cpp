@@ -80,6 +80,7 @@ window::window(const window_args& args)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, args.context_version_minor);
     glfwWindowHint(GLFW_OPENGL_PROFILE, args.context_profile);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, static_cast<int>(args.context_forward_compatibility));
+    glfwWindowHint(GLFW_SAMPLES, args.msaa_samples);
 
     impl->handle = glfwCreateWindow(args.width,
                                 args.height,

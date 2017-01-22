@@ -67,6 +67,7 @@ namespace
     args.context_version_minor = 2;
     args.context_profile = GLFW_OPENGL_CORE_PROFILE;
     args.context_forward_compatibility = true;
+    args.msaa_samples = 16;
     args.width = 800;
     args.height = 600;
     args.title = "Lineage";

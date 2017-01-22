@@ -51,6 +51,7 @@ namespace lineage
     int context_version_minor;		/**< OpenGL context minor version. */
     int context_profile;		/**< OpenGL context profile to use. */
     bool context_forward_compatibility;	/**< If `true`, OpenGL context should be forward compatible. */
+    int msaa_samples;			/**< Samples to use for multi-sampling. */
 
     /* -- Window Configuration -- */
 

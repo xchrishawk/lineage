@@ -38,23 +38,23 @@ void prototype_state_manager::update_background_color(const state_args& args)
   const float delta = RATE_PER_SECOND * static_cast<float>(args.delta_t);
 
   // red
-  if (m_input_manager.input_state(input_type::color_red_increase) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_red_increase) == input_state::active)
     m_background_color.r += delta;
-  if (m_input_manager.input_state(input_type::color_red_decrease) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_red_decrease) == input_state::active)
     m_background_color.r -= delta;
   clamp(m_background_color.r, 0.0f, 1.0f);
 
   // green
-  if (m_input_manager.input_state(input_type::color_green_increase) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_green_increase) == input_state::active)
     m_background_color.g += delta;
-  if (m_input_manager.input_state(input_type::color_green_decrease) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_green_decrease) == input_state::active)
     m_background_color.g -= delta;
   clamp(m_background_color.g, 0.0f, 1.0f);
 
   // blue
-  if (m_input_manager.input_state(input_type::color_blue_increase) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_blue_increase) == input_state::active)
     m_background_color.b += delta;
-  if (m_input_manager.input_state(input_type::color_blue_decrease) == input_state::active)
+  if (m_input_manager.input_state(input_type::generic_color_blue_decrease) == input_state::active)
     m_background_color.b -= delta;
   clamp(m_background_color.b, 0.0f, 1.0f);
 }

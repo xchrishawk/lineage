@@ -28,27 +28,50 @@ using namespace lineage;
 
 namespace
 {
+
+  /* -- Defaults -- */
+
   const glm::vec3 DEFAULT_CAMERA_POSITION { 0.0, 0.0, 5.0 };
-  const float RATE_CAMERA_POSITION { 2.0f };
-
   const glm::quat DEFAULT_CAMERA_ROTATION { };
-  const float RATE_CAMERA_ROTATION { deg_to_rad(90.0f) };
-
   const float DEFAULT_CAMERA_CLIP_NEAR { 0.1f };
   const float DEFAULT_CAMERA_CLIP_FAR { 100.0f };
-
   const float DEFAULT_CAMERA_FOV { deg_to_rad(45.0f) };
-  const float RATE_CAMERA_FOV { deg_to_rad(15.0f) };
+  const glm::vec4 DEFAULT_BACKGROUND_COLOR { COLOR_BLACK };
+
+  /* -- Minimums/Maximums -- */
+
   const float MIN_CAMERA_FOV { deg_to_rad(10.0f) };
   const float MAX_CAMERA_FOV { deg_to_rad(170.0f) };
+  const float MIN_COLOR_COMPONENT { 0.0f };
+  const float MAX_COLOR_COMPONENT { 1.0f };
+
+  /* -- Rates of Change -- */
+
+  const float RATE_CAMERA_POSITION { 2.0f };
+  const float RATE_CAMERA_ROTATION { deg_to_rad(90.0f) };
+  const float RATE_CAMERA_FOV { deg_to_rad(45.0f) };
+  const float RATE_COLOR_COMPONENT { 0.5f };
+
 }
 
 /* -- Types -- */
 
+namespace
+{
+
+  /** Enumeration of user input modes. */
+  enum class input_mode
+  {
+    camera,
+    background,
+  };
+
+}
+
 /**
  * Implementation for the `lineage::default_state_manager` class.
  */
-struct default_state_manager::implementation
+struct default_state_manager::implementation : public input_observer
 {
 
   /* -- Constructor -- */
@@ -56,29 +79,68 @@ struct default_state_manager::implementation
   implementation(const lineage::input_manager& input_manager)
     : input_manager(input_manager),
       scene_graph(create_scene_graph()),
+      mode(input_mode::camera),
       camera_position(DEFAULT_CAMERA_POSITION),
       camera_rotation(DEFAULT_CAMERA_ROTATION),
       camera_fov(DEFAULT_CAMERA_FOV),
       camera_clip_near(DEFAULT_CAMERA_CLIP_NEAR),
-      camera_clip_far(DEFAULT_CAMERA_CLIP_FAR)
-  { }
+      camera_clip_far(DEFAULT_CAMERA_CLIP_FAR),
+      background_color(DEFAULT_BACKGROUND_COLOR)
+  {
+    input_manager.add_observer(*this);
+  }
+
+  ~implementation()
+  {
+    input_manager.remove_observer(*this);
+  }
 
   /* -- Fields -- */
 
   const lineage::input_manager& input_manager;
   const lineage::scene_graph scene_graph;
+
+  input_mode mode;
+
   glm::vec3 camera_position;
   glm::quat camera_rotation;
   float camera_fov;
   float camera_clip_near;
   float camera_clip_far;
 
+  glm::vec4 background_color;
+
+  /* -- `lineage::input_observer` Implementation -- */
+
+  /** Handles an input event. */
+  virtual void input_event(input_type type, input_state state)
+  {
+    if (state != input_state::active)
+      return;
+
+    switch (type)
+    {
+    case input_type::mode_camera:
+      mode = input_mode::camera;
+      lineage_log_status("Input mode set to input_mode::camera.");
+      break;
+
+    case input_type::mode_background:
+      mode = input_mode::background;
+      lineage_log_status("Input mode set to input_mode::background.");
+      break;
+
+    default:
+      break;
+    }
+  }
+
   /* -- Methods -- */
 
   /** Updates the camera position. */
   void update_camera_position(const state_args& args)
   {
-    if (input_active(input_type::camera_reset))
+    if (input_active(input_type::generic_reset))
     {
       camera_position = DEFAULT_CAMERA_POSITION;
       return;
@@ -112,7 +174,7 @@ struct default_state_manager::implementation
   /** Updates the camera rotation. */
   void update_camera_rotation(const state_args& args)
   {
-    if (input_active(input_type::camera_reset))
+    if (input_active(input_type::generic_reset))
     {
       camera_rotation = DEFAULT_CAMERA_ROTATION;
       return;
@@ -142,18 +204,54 @@ struct default_state_manager::implementation
   /** Updates the camera field of view. */
   void update_camera_fov(const state_args& args)
   {
-    if (input_active(input_type::camera_reset))
+    if (input_active(input_type::generic_reset))
     {
       camera_fov = DEFAULT_CAMERA_FOV;
       return;
     }
 
     const float delta = RATE_CAMERA_FOV * args.delta_t;
+
     if (input_active(input_type::camera_fov_increase))
       camera_fov += delta;
     if (input_active(input_type::camera_fov_decrease))
       camera_fov -= delta;
+
     clamp(camera_fov, MIN_CAMERA_FOV, MAX_CAMERA_FOV);
+  }
+
+  /** Updates the background color. */
+  void update_background_color(const state_args& args)
+  {
+    if (input_active(input_type::generic_reset))
+    {
+      background_color = DEFAULT_BACKGROUND_COLOR;
+      return;
+    }
+
+    const float delta = RATE_COLOR_COMPONENT * args.delta_t;
+
+    // red
+    if (input_active(input_type::generic_color_red_increase))
+      background_color.r += delta;
+    if (input_active(input_type::generic_color_red_decrease))
+      background_color.r -= delta;
+
+    // green
+    if (input_active(input_type::generic_color_green_increase))
+      background_color.g += delta;
+    if (input_active(input_type::generic_color_green_decrease))
+      background_color.g -= delta;
+
+    // blue
+    if (input_active(input_type::generic_color_blue_increase))
+      background_color.b += delta;
+    if (input_active(input_type::generic_color_blue_decrease))
+      background_color.b -= delta;
+
+    clamp(background_color.r, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
+    clamp(background_color.g, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
+    clamp(background_color.b, MIN_COLOR_COMPONENT, MAX_COLOR_COMPONENT);
   }
 
   /** Returns `true` if the specified input is active. */
@@ -261,11 +359,23 @@ float default_state_manager::camera_clip_far() const
   return impl->camera_clip_far;
 }
 
+glm::vec4 default_state_manager::background_color() const
+{
+  return impl->background_color;
+}
+
 void default_state_manager::run(const state_args& args)
 {
-  impl->update_camera_position(args);
-  impl->update_camera_rotation(args);
-  impl->update_camera_fov(args);
+  if (impl->mode == input_mode::camera)
+  {
+    impl->update_camera_position(args);
+    impl->update_camera_rotation(args);
+    impl->update_camera_fov(args);
+  }
+  else if (impl->mode == input_mode::background)
+  {
+    impl->update_background_color(args);
+  }
 }
 
 double default_state_manager::target_delta_t() const

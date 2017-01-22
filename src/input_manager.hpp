@@ -24,7 +24,15 @@ namespace lineage
   {
     invalid,
     application_exit,
-    camera_reset,
+    mode_camera,
+    mode_background,
+    generic_reset,
+    generic_color_red_increase,
+    generic_color_red_decrease,
+    generic_color_green_increase,
+    generic_color_green_decrease,
+    generic_color_blue_increase,
+    generic_color_blue_decrease,
     camera_translation_right,
     camera_translation_left,
     camera_translation_up,
@@ -39,12 +47,6 @@ namespace lineage
     camera_rotation_roll_left,
     camera_fov_increase,
     camera_fov_decrease,
-    color_red_increase,
-    color_red_decrease,
-    color_green_increase,
-    color_green_decrease,
-    color_blue_increase,
-    color_blue_decrease,
   };
 
   /**

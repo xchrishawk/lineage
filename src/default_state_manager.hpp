@@ -85,6 +85,11 @@ namespace lineage
      */
     float camera_clip_far() const;
 
+    /**
+     * The background color which should be rendered.
+     */
+    glm::vec4 background_color() const;
+
     /* -- `lineage::state_manager` Implementation -- */
 
   public:

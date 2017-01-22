@@ -135,8 +135,12 @@ struct default_render_manager::implementation
     glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
 
     // clear buffer
+    glm::vec4 background_color = state_manager.background_color();
+    glClearColor(background_color.r,
+                 background_color.g,
+                 background_color.b,
+                 background_color.a);
     glClearDepth(1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 

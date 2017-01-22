@@ -49,7 +49,15 @@ struct input_manager::implementation
       switch (key)
       {
       case GLFW_KEY_ESCAPE:		return input_type::application_exit;
-      case GLFW_KEY_X:			return input_type::camera_reset;
+      case GLFW_KEY_F1:			return input_type::mode_camera;
+      case GLFW_KEY_F2:			return input_type::mode_background;
+      case GLFW_KEY_X:			return input_type::generic_reset;
+      case GLFW_KEY_U:			return input_type::generic_color_red_increase;
+      case GLFW_KEY_J:			return input_type::generic_color_red_decrease;
+      case GLFW_KEY_I:			return input_type::generic_color_green_increase;
+      case GLFW_KEY_K:			return input_type::generic_color_green_decrease;
+      case GLFW_KEY_O:			return input_type::generic_color_blue_increase;
+      case GLFW_KEY_L:			return input_type::generic_color_blue_decrease;
       case GLFW_KEY_D:			return input_type::camera_translation_right;
       case GLFW_KEY_A:			return input_type::camera_translation_left;
       case GLFW_KEY_R:			return input_type::camera_translation_up;
@@ -58,12 +66,6 @@ struct input_manager::implementation
       case GLFW_KEY_S:			return input_type::camera_translation_backward;
       case GLFW_KEY_LEFT_BRACKET:	return input_type::camera_fov_decrease;
       case GLFW_KEY_RIGHT_BRACKET:	return input_type::camera_fov_increase;
-      case GLFW_KEY_U:			return input_type::color_red_increase;
-      case GLFW_KEY_J:			return input_type::color_red_decrease;
-      case GLFW_KEY_I:			return input_type::color_green_increase;
-      case GLFW_KEY_K:			return input_type::color_green_decrease;
-      case GLFW_KEY_O:			return input_type::color_blue_increase;
-      case GLFW_KEY_L:			return input_type::color_blue_decrease;
       default:      			return input_type::invalid;
       }
 
@@ -93,7 +95,6 @@ struct input_manager::implementation
     default:				return lineage::input_state::invalid;
     }
   }
-
 
 };
 

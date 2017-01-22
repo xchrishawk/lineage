@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "constants.hpp"
 #include "default_state_manager.hpp"
@@ -33,7 +34,7 @@ namespace
   const glm::quat DEFAULT_CAMERA_ROTATION { };
   const float RATE_CAMERA_ROTATION { deg_to_rad(90.0f) };
 
-  const float DEFAULT_CAMERA_CLIP_NEAR { 0.0f };
+  const float DEFAULT_CAMERA_CLIP_NEAR { 0.1f };
   const float DEFAULT_CAMERA_CLIP_FAR { 100.0f };
 
   const float DEFAULT_CAMERA_FOV { deg_to_rad(45.0f) };
@@ -164,38 +165,57 @@ struct default_state_manager::implementation
   /** Builds the scene graph to display. */
   static lineage::scene_graph create_scene_graph()
   {
-    // first mesh
-    static const GLenum MESH_1_DRAW_MODE = GL_TRIANGLE_FAN;
-    static const std::vector<vertex> MESH_1_VERTICES =
+    static const GLenum SQUARE_DRAW_MODE = GL_TRIANGLE_FAN;
+    static const std::vector<vertex> SQUARE_VERTICES =
     {
-      { { 0.0f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_RED, VEC2_ZERO },
-      { { 0.5f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_BLUE, VEC2_ZERO },
-      { { 0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_GREEN, VEC2_ZERO },
-      { { 0.0f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLACK, VEC2_ZERO },
+      { { -0.5f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_RED, VEC2_ZERO },
+      { { 0.5f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_GREEN, VEC2_ZERO },
+      { { 0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLUE, VEC2_ZERO },
+      { { -0.5f, 0.5f, 0.0f }, VEC3_ZERO, COLOR_BLACK, VEC2_ZERO }
     };
-    static const std::vector<GLuint> MESH_1_INDICES = { 0, 1, 2, 3 };
+    static const std::vector<GLuint> SQUARE_INDICES = { 0, 1, 2, 3 };
 
-    // second mesh
-    static const GLenum MESH_2_DRAW_MODE = GL_TRIANGLES;
-    static const std::vector<vertex> MESH_2_VERTICES =
-    {
-      { { 0.0f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_CYAN, VEC2_ZERO },
-      { { -0.5f, 0.0f, 0.0f }, VEC3_ZERO, COLOR_MAGENTA, VEC2_ZERO },
-      { { 0.0f, -0.5f, 0.0f }, VEC3_ZERO, COLOR_YELLOW, VEC2_ZERO },
-    };
-    static const std::vector<GLuint> MESH_2_INDICES = { 0, 1, 2 };
+    scene_node front_face;
+    front_face.meshes().push_back(0);
+    front_face.set_position(glm::vec3(0.0f, 0.0f, 0.5f));
+    front_face.set_rotation(ROTATION_NONE);
+
+    scene_node back_face;
+    back_face.meshes().push_back(0);
+    back_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(180.0f), VEC3_UNIT_Y));
+    back_face.set_position(glm::vec3(0.0f, 0.0f, -0.5f));
+
+    scene_node left_face;
+    left_face.meshes().push_back(0);
+    left_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(-90.0f), VEC3_UNIT_Y));
+    left_face.set_position(glm::vec3(-0.5f, 0.0f, 0.0f));
+
+    scene_node right_face;
+    right_face.meshes().push_back(0);
+    right_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(90.0f), VEC3_UNIT_Y));
+    right_face.set_position(glm::vec3(0.5f, 0.0f, 0.0f));
+
+    scene_node top_face;
+    top_face.meshes().push_back(0);
+    top_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(-90.0f), VEC3_UNIT_X));
+    top_face.set_position(glm::vec3(0.0f, 0.5f, 0.0f));
+
+    scene_node bottom_face;
+    bottom_face.meshes().push_back(0);
+    bottom_face.set_rotation(glm::rotate(ROTATION_NONE, deg_to_rad(90.0f), VEC3_UNIT_X));
+    bottom_face.set_position(glm::vec3(0.0f, -0.5f, 0.0f));
+
+    scene_node cube_node;
+    cube_node.children().push_back(front_face);
+    cube_node.children().push_back(back_face);
+    cube_node.children().push_back(left_face);
+    cube_node.children().push_back(right_face);
+    cube_node.children().push_back(top_face);
+    cube_node.children().push_back(bottom_face);
 
     lineage::scene_graph graph;
-    graph.meshes().emplace_back(std::make_unique<mesh>(MESH_1_DRAW_MODE, MESH_1_VERTICES, MESH_1_INDICES));
-    graph.meshes().emplace_back(std::make_unique<mesh>(MESH_2_DRAW_MODE, MESH_2_VERTICES, MESH_2_INDICES));
-
-    scene_node node1;
-    node1.meshes().push_back(0);
-    graph.nodes().push_back(std::move(node1));
-
-    scene_node node2;
-    node2.meshes().push_back(1);
-    graph.nodes().push_back(std::move(node2));
+   graph.meshes().emplace_back(std::make_unique<mesh>(SQUARE_DRAW_MODE, SQUARE_VERTICES, SQUARE_INDICES));
+   graph.nodes().push_back(cube_node);
 
     return graph;
   }

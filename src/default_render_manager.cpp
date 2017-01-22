@@ -112,12 +112,17 @@ struct default_render_manager::implementation
   /** Initialize the framebuffer for rendering. */
   void render_init(const render_args& args)
   {
+    // configure depth test
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
     // set viewport
     glViewport(0, 0, args.framebuffer_width, args.framebuffer_height);
 
     // clear buffer
+    glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
   /** Renders the specified scene node. */
